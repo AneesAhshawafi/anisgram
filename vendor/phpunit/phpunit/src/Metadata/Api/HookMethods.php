@@ -33,18 +33,20 @@ use ReflectionMethod;
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phpstan-type HookMethodsByType array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}
  */
 final class HookMethods
 {
     /**
-     * @var array<class-string, array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}>
+     * @var array<class-string, HookMethodsByType>
      */
     private static array $hookMethods = [];
 
     /**
      * @param class-string<TestCase> $className
      *
-     * @return array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}
+     * @return HookMethodsByType
      */
     public function hookMethods(string $className): array
     {
@@ -56,7 +58,7 @@ final class HookMethods
             return self::$hookMethods[$className];
         }
 
-        self::$hookMethods[$className] = self::emptyHookMethodsArray();
+        $hookMethods = self::emptyHookMethodsArray();
 
         foreach (Reflection::methodsDeclaredDirectlyInTestClass(new ReflectionClass($className)) as $method) {
             $methodName         = $method->getName();
@@ -69,7 +71,7 @@ final class HookMethods
                     assert($beforeClass instanceof BeforeClass);
 
                     $this->addHookMethod(
-                        self::$hookMethods[$className]['beforeClass'],
+                        $hookMethods['beforeClass'],
                         $declaringClassName,
                         $methodName,
                         $beforeClass->priority(),
@@ -82,7 +84,7 @@ final class HookMethods
                     assert($afterClass instanceof AfterClass);
 
                     $this->addHookMethod(
-                        self::$hookMethods[$className]['afterClass'],
+                        $hookMethods['afterClass'],
                         $declaringClassName,
                         $methodName,
                         $afterClass->priority(),
@@ -96,7 +98,7 @@ final class HookMethods
                 assert($before instanceof Before);
 
                 $this->addHookMethod(
-                    self::$hookMethods[$className]['before'],
+                    $hookMethods['before'],
                     $declaringClassName,
                     $methodName,
                     $before->priority(),
@@ -109,7 +111,7 @@ final class HookMethods
                 assert($preCondition instanceof PreCondition);
 
                 $this->addHookMethod(
-                    self::$hookMethods[$className]['preCondition'],
+                    $hookMethods['preCondition'],
                     $declaringClassName,
                     $methodName,
                     $preCondition->priority(),
@@ -122,7 +124,7 @@ final class HookMethods
                 assert($postCondition instanceof PostCondition);
 
                 $this->addHookMethod(
-                    self::$hookMethods[$className]['postCondition'],
+                    $hookMethods['postCondition'],
                     $declaringClassName,
                     $methodName,
                     $postCondition->priority(),
@@ -135,7 +137,7 @@ final class HookMethods
                 assert($after instanceof After);
 
                 $this->addHookMethod(
-                    self::$hookMethods[$className]['after'],
+                    $hookMethods['after'],
                     $declaringClassName,
                     $methodName,
                     $after->priority(),
@@ -144,7 +146,9 @@ final class HookMethods
             }
         }
 
-        return self::$hookMethods[$className];
+        self::$hookMethods[$className] = $hookMethods;
+
+        return $hookMethods;
     }
 
     public function isHookMethod(ReflectionMethod $method): bool
@@ -173,9 +177,9 @@ final class HookMethods
     }
 
     /**
-     * @param class-string<TestCase> $declaringClassName
-     * @param non-empty-string       $methodName
-     * @param non-empty-string       $attributeName
+     * @param class-string     $declaringClassName
+     * @param non-empty-string $methodName
+     * @param non-empty-string $attributeName
      */
     private function addHookMethod(HookMethodCollection $hookMethods, string $declaringClassName, string $methodName, int $priority, string $attributeName): void
     {
@@ -196,7 +200,7 @@ final class HookMethods
     }
 
     /**
-     * @return array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}
+     * @return HookMethodsByType
      */
     private function emptyHookMethodsArray(): array
     {

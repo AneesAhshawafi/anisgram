@@ -99,10 +99,16 @@ EOT;
         $buffer = self::PAGE_HEADER;
 
         foreach ($tests as $_tests) {
+            $list = $_tests->asArray();
+
+            if ($list === []) {
+                continue;
+            }
+
             $buffer .= sprintf(
                 self::CLASS_HEADER,
                 htmlspecialchars(
-                    $_tests->asArray()[0]->test()->testDox()->prettifiedClassName(),
+                    $list[0]->test()->testDox()->prettifiedClassName(),
                     ENT_QUOTES | ENT_SUBSTITUTE,
                 ),
             );

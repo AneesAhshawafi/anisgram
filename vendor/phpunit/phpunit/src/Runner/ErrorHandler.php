@@ -24,12 +24,17 @@ use const E_USER_ERROR;
 use const E_USER_NOTICE;
 use const E_USER_WARNING;
 use const E_WARNING;
+use function array_any;
+use function array_reverse;
 use function array_slice;
+use function array_unshift;
 use function array_values;
 use function assert;
+use function count;
 use function debug_backtrace;
 use function defined;
 use function error_reporting;
+use function is_callable;
 use function preg_match;
 use function restore_error_handler;
 use function set_error_handler;
@@ -44,14 +49,21 @@ use PHPUnit\Metadata\IgnoreDeprecations;
 use PHPUnit\Metadata\Parser\Registry as MetadataParserRegistry;
 use PHPUnit\Runner\Baseline\Baseline;
 use PHPUnit\Runner\Baseline\Issue;
+use PHPUnit\Runner\IssueTriggerResolver\DefaultResolver as DefaultIssueTriggerResolver;
+use PHPUnit\Runner\IssueTriggerResolver\Resolver as IssueTriggerResolver;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use PHPUnit\TextUI\Configuration\SourceFilter;
 use PHPUnit\Util\ExcludeList;
+use Throwable;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phpstan-type DeprecationMethod array{className: string, methodName: non-empty-string}
+ * @phpstan-type DeprecationTriggers array{functions: list<non-empty-string>, methods: list<DeprecationMethod>}
+ * @phpstan-type StackFrame array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}
  */
 final class ErrorHandler
 {
@@ -60,25 +72,46 @@ final class ErrorHandler
     private static ?self $instance          = null;
     private ?Baseline $baseline             = null;
     private ExcludeList $excludeList;
-    private bool $enabled                     = false;
-    private ?int $originalErrorReportingLevel = null;
+    private bool $enabled                          = false;
+    private ?int $originalErrorReportingLevel      = null;
+    private ?int $deferredIssueErrorReportingLevel = null;
+
+    /**
+     * @var ?array{int, string, string, int}
+     */
+    private ?array $forwardedError = null;
+
+    /**
+     * @var ?callable
+     */
+    private mixed $previousErrorHandler = null;
+
+    /**
+     * @var ?callable
+     */
+    private mixed $previousNonTestCaseErrorHandler = null;
     private readonly bool $identifyIssueTrigger;
 
     /**
-     * @var list<array{int, string, string, int}>
+     * @var array<string, list<array{int, string, string, int, int}>>
      */
-    private array $globalDeprecations = [];
+    private array $testCaseContextIssues = [];
+    private ?string $testCaseContext     = null;
 
     /**
-     * @var array<string, list<array{int, string, string, int}>>
+     * @var ?list<callable>
      */
-    private array $testCaseContextDeprecations = [];
-    private ?string $testCaseContext           = null;
+    private ?array $backupErrorHandlers = null;
 
     /**
-     * @var ?array{functions: list<non-empty-string>, methods: list<array{className: class-string, methodName: non-empty-string}>}
+     * @var ?DeprecationTriggers
      */
     private ?array $deprecationTriggers = null;
+
+    /**
+     * @var non-empty-list<IssueTriggerResolver>
+     */
+    private array $issueTriggerResolvers;
 
     public static function instance(): self
     {
@@ -99,22 +132,47 @@ final class ErrorHandler
 
     private function __construct(bool $identifyIssueTrigger)
     {
-        $this->excludeList          = new ExcludeList;
-        $this->identifyIssueTrigger = $identifyIssueTrigger;
+        $this->excludeList           = new ExcludeList;
+        $this->identifyIssueTrigger  = $identifyIssueTrigger;
+        $this->issueTriggerResolvers = [new DefaultIssueTriggerResolver];
     }
 
     /**
      * @throws NoTestCaseObjectOnCallStackException
      */
-    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): false
+    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
     {
+        /**
+         * A previously registered error handler may delegate an error that is being
+         * forwarded to it back to this error handler: the issue must only be recorded
+         * by the invocation that forwards the error, not by the delegating invocation.
+         */
+        if ($this->forwardedError === [$errorNumber, $errorString, $errorFile, $errorLine]) {
+            return false;
+        }
+
         $suppressed = (error_reporting() & ~self::INSUPPRESSIBLE_LEVELS) === 0;
 
         if ($suppressed && $this->excludeList->isExcluded($errorFile)) {
             // @codeCoverageIgnoreStart
-            return false;
+            return $this->forwardToPreviousErrorHandler($errorNumber, $errorString, $errorFile, $errorLine);
             // @codeCoverageIgnoreEnd
         }
+
+        if ($errorString === '' || $errorFile === '' || $errorLine < 1) {
+            // @codeCoverageIgnoreStart
+            return $this->forwardToPreviousErrorHandler($errorNumber, $errorString, $errorFile, $errorLine);
+            // @codeCoverageIgnoreEnd
+        }
+
+        /**
+         * A previously registered error handler must run before the issue is recorded:
+         * when it turns the error into an exception, the error becomes control flow
+         * that the test runner observes directly and no issue must be recorded.
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/issues/6817
+         */
+        $handledByPreviousErrorHandler = $this->forwardToPreviousErrorHandler($errorNumber, $errorString, $errorFile, $errorLine);
 
         /**
          * E_STRICT is deprecated since PHP 8.4.
@@ -130,9 +188,7 @@ final class ErrorHandler
         $test = Event\Code\TestMethodBuilder::fromCallStack();
 
         if ($errorNumber === E_USER_DEPRECATED) {
-            $deprecationFrame = $this->guessDeprecationFrame();
-            $errorFile        = $deprecationFrame['file'] ?? $errorFile;
-            $errorLine        = $deprecationFrame['line'] ?? $errorLine;
+            [$errorFile, $errorLine] = $this->applyDeprecationFrame($errorFile, $errorLine);
         }
 
         $ignoredByBaseline = $this->ignoredByBaseline($errorFile, $errorLine, $errorString);
@@ -196,7 +252,7 @@ final class ErrorHandler
                     $suppressed,
                     $ignoredByBaseline,
                     $ignoredByTest,
-                    $this->trigger($test, false, $errorFile),
+                    $this->trigger($test, false, $errorString, $errorFile),
                 );
 
                 break;
@@ -210,8 +266,8 @@ final class ErrorHandler
                     $suppressed,
                     $ignoredByBaseline,
                     $ignoredByTest,
-                    $this->trigger($test, true),
-                    $this->stackTrace(),
+                    $this->trigger($test, true, $errorString),
+                    $this->stackTrace($errorFile, $errorLine),
                 );
 
                 break;
@@ -228,51 +284,190 @@ final class ErrorHandler
                 throw new ErrorException('E_USER_ERROR was triggered');
 
             default:
-                return false;
+                return $handledByPreviousErrorHandler;
         }
 
-        return false;
+        return $handledByPreviousErrorHandler;
     }
 
-    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): true
+    public function handleNonTestCaseIssue(int $errorNumber, string $errorString, string $errorFile, int $errorLine): true
     {
+        /**
+         * A previously registered error handler may delegate an error that is being
+         * forwarded to it back to this error handler: the issue must only be recorded
+         * by the invocation that forwards the error, not by the delegating invocation.
+         */
+        if ($this->forwardedError === [$errorNumber, $errorString, $errorFile, $errorLine]) {
+            return true;
+        }
+
+        $suppressed = (error_reporting() & ~self::INSUPPRESSIBLE_LEVELS) === 0;
+
+        if ($suppressed && $this->excludeList->isExcluded($errorFile)) {
+            return true;
+        }
+
         if ($this->testCaseContext !== null) {
-            $this->testCaseContextDeprecations[$this->testCaseContext][] = [$errorNumber, $errorString, $errorFile, $errorLine];
-        } else {
-            $this->globalDeprecations[] = [$errorNumber, $errorString, $errorFile, $errorLine];
+            $this->testCaseContextIssues[$this->testCaseContext][] = [$errorNumber, $errorString, $errorFile, $errorLine, error_reporting()];
+
+            return true;
+        }
+
+        if ($errorString === '' || $errorFile === '' || $errorLine < 1) {
+            // @codeCoverageIgnoreStart
+            $this->forwardToPreviousNonTestCaseErrorHandler($errorNumber, $errorString, $errorFile, $errorLine);
+
+            return true;
+            // @codeCoverageIgnoreEnd
+        }
+
+        /**
+         * A previously registered error handler must run before the issue is recorded:
+         * when it turns the error into an exception, the error becomes control flow
+         * that the test runner observes directly and no issue must be recorded.
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/issues/6817
+         */
+        $this->forwardToPreviousNonTestCaseErrorHandler($errorNumber, $errorString, $errorFile, $errorLine);
+
+        /**
+         * E_STRICT is deprecated since PHP 8.4.
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/issues/5956
+         */
+        if (defined('E_STRICT') && $errorNumber === 2048) {
+            // @codeCoverageIgnoreStart
+            $errorNumber = E_NOTICE;
+            // @codeCoverageIgnoreEnd
+        }
+
+        if ($errorNumber === E_USER_DEPRECATED) {
+            [$errorFile, $errorLine] = $this->applyDeprecationFrame($errorFile, $errorLine);
+        }
+
+        $ignoredByBaseline = $this->ignoredByBaseline($errorFile, $errorLine, $errorString);
+
+        switch ($errorNumber) {
+            case E_NOTICE:
+                Event\Facade::emitter()->testRunnerTriggeredPhpNotice(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                    $ignoredByBaseline,
+                );
+
+                break;
+
+            case E_USER_NOTICE:
+                Event\Facade::emitter()->testRunnerTriggeredNotice(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                    $ignoredByBaseline,
+                );
+
+                break;
+
+            case E_WARNING:
+                Event\Facade::emitter()->testRunnerTriggeredPhpWarning(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                    $ignoredByBaseline,
+                );
+
+                break;
+
+            case E_USER_WARNING:
+                Event\Facade::emitter()->testRunnerTriggeredWarning(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                    $ignoredByBaseline,
+                );
+
+                break;
+
+            case E_DEPRECATED:
+                Event\Facade::emitter()->testRunnerTriggeredPhpDeprecation(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                    $ignoredByBaseline,
+                    $this->triggerWithoutTest(false, $errorString, $errorFile),
+                );
+
+                break;
+
+            case E_USER_DEPRECATED:
+                Event\Facade::emitter()->testRunnerTriggeredDeprecation(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                    $ignoredByBaseline,
+                    $this->triggerWithoutTest(true, $errorString),
+                    $this->stackTrace($errorFile, $errorLine),
+                );
+
+                break;
+
+            case E_USER_ERROR:
+                Event\Facade::emitter()->testRunnerTriggeredError(
+                    $errorString,
+                    $errorFile,
+                    $errorLine,
+                    $suppressed,
+                );
+
+                break;
         }
 
         return true;
     }
 
-    public function registerDeprecationHandler(): void
+    public function registerForNonTestCaseContext(): void
     {
-        set_error_handler([self::$instance, 'deprecationHandler'], E_USER_DEPRECATED | E_DEPRECATED);
+        $previousHandler = set_error_handler(
+            [self::instance(), 'handleNonTestCaseIssue'],
+            E_DEPRECATED | E_USER_DEPRECATED | E_NOTICE | E_USER_NOTICE | E_WARNING | E_USER_WARNING,
+        );
+
+        if ($previousHandler !== null) {
+            $this->previousNonTestCaseErrorHandler = $previousHandler;
+        }
     }
 
-    public function restoreDeprecationHandler(): void
+    public function restoreForNonTestCaseContext(): void
     {
         restore_error_handler();
+
+        $this->previousNonTestCaseErrorHandler = null;
     }
 
-    public function enable(TestCase $test): void
+    public function enable(TestCase $test): ?Throwable
     {
         assert(!$this->enabled);
 
-        $oldErrorHandler = set_error_handler($this);
+        $previousErrorHandler = set_error_handler($this);
 
-        if ($oldErrorHandler !== null) {
-            restore_error_handler();
-
-            return;
+        if ($previousErrorHandler !== null) {
+            $this->previousErrorHandler = $previousErrorHandler;
         }
 
         $this->enabled                     = true;
         $this->originalErrorReportingLevel = error_reporting();
 
-        $this->triggerGlobalDeprecations($test);
+        $throwableFromDeferredIssue = $this->triggerTestCaseContextIssues($test);
 
         error_reporting($this->originalErrorReportingLevel & self::UNHANDLEABLE_LEVELS);
+
+        return $throwableFromDeferredIssue;
     }
 
     public function disable(): void
@@ -287,6 +482,61 @@ final class ErrorHandler
 
         $this->enabled                     = false;
         $this->originalErrorReportingLevel = null;
+        $this->previousErrorHandler        = null;
+    }
+
+    /**
+     * @return list<non-empty-string>
+     */
+    public function snapshotErrorHandlers(): array
+    {
+        $messages = [];
+
+        $this->backupErrorHandlers = $this->activeErrorHandlers($messages);
+
+        return $messages;
+    }
+
+    /**
+     * @return list<non-empty-string>
+     */
+    public function restoreErrorHandlers(bool $inIsolation): array
+    {
+        $messages            = [];
+        $activeErrorHandlers = $this->activeErrorHandlers($messages);
+        $backupErrorHandlers = $this->backupErrorHandlers;
+
+        assert($backupErrorHandlers !== null);
+
+        $activeAbove = $this->handlersAboveSelf($activeErrorHandlers);
+        $backupAbove = $this->handlersAboveSelf($backupErrorHandlers);
+
+        if ($this->isOnStack($backupErrorHandlers) &&
+            !$this->isOnStack($activeErrorHandlers)) {
+            $messages[] = 'Test code or tested code removed error handlers other than its own';
+        } elseif ($activeAbove !== $backupAbove) {
+            if (count($activeAbove) > count($backupAbove)) {
+                if (!$inIsolation) {
+                    $messages[] = 'Test code or tested code did not remove its own error handlers';
+                }
+            } else {
+                $messages[] = 'Test code or tested code removed error handlers other than its own';
+            }
+        }
+
+        if ($activeErrorHandlers !== $backupErrorHandlers) {
+            foreach ($activeErrorHandlers as $handler) {
+                restore_error_handler();
+            }
+
+            foreach ($backupErrorHandlers as $handler) {
+                set_error_handler($handler);
+            }
+        }
+
+        $this->backupErrorHandlers = null;
+
+        return $messages;
     }
 
     public function useBaseline(Baseline $baseline): void
@@ -295,11 +545,16 @@ final class ErrorHandler
     }
 
     /**
-     * @param array{functions: list<non-empty-string>, methods: list<array{className: class-string, methodName: non-empty-string}>} $deprecationTriggers
+     * @param DeprecationTriggers $deprecationTriggers
      */
     public function useDeprecationTriggers(array $deprecationTriggers): void
     {
         $this->deprecationTriggers = $deprecationTriggers;
+    }
+
+    public function addIssueTriggerResolver(IssueTriggerResolver $resolver): void
+    {
+        array_unshift($this->issueTriggerResolvers, $resolver);
     }
 
     public function enterTestCaseContext(string $className, string $methodName): void
@@ -329,7 +584,27 @@ final class ErrorHandler
     /**
      * @param null|non-empty-string $errorFile
      */
-    private function trigger(TestMethod $test, bool $isUserland, ?string $errorFile = null): IssueTrigger
+    private function triggerWithoutTest(bool $isUserland, string $errorString, ?string $errorFile = null): IssueTrigger
+    {
+        if (!$this->identifyIssueTrigger) {
+            return IssueTrigger::from(null, null);
+        }
+
+        if (!$isUserland) {
+            assert($errorFile !== null);
+
+            return IssueTrigger::from(Code::PHP, $this->categorizeFileWithoutTest($errorFile));
+        }
+
+        $trace = $this->filteredStackTrace();
+
+        return $this->triggerForUserlandDeprecationWithoutTest($errorString, $trace);
+    }
+
+    /**
+     * @param null|non-empty-string $errorFile
+     */
+    private function trigger(TestMethod $test, bool $isUserland, string $errorString, ?string $errorFile = null): IssueTrigger
     {
         if (!$this->identifyIssueTrigger) {
             return IssueTrigger::from(null, null);
@@ -343,26 +618,47 @@ final class ErrorHandler
 
         $trace = $this->filteredStackTrace();
 
-        return $this->triggerForUserlandDeprecation($test, $trace);
+        return $this->triggerForUserlandDeprecation($test, $errorString, $trace);
     }
 
     /**
-     * @param list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}> $trace
+     * @param list<StackFrame> $trace
      */
-    private function triggerForUserlandDeprecation(TestMethod $test, array $trace): IssueTrigger
+    private function triggerForUserlandDeprecation(TestMethod $test, string $message, array $trace): IssueTrigger
     {
-        $callee = null;
-        $caller = null;
+        foreach ($this->issueTriggerResolvers as $resolver) {
+            $result = $resolver->resolve($trace, $message);
 
-        if (isset($trace[0]['file'])) {
-            $callee = $this->categorizeFile($trace[0]['file'], $test);
+            if ($result === null) {
+                continue;
+            }
+
+            $callee = null;
+
+            if ($result->hasCallee()) {
+                $calleeFile = $result->callee();
+
+                assert($calleeFile !== null);
+
+                $callee = $this->categorizeFile($calleeFile, $test);
+            }
+
+            $caller = null;
+
+            if ($result->hasCaller()) {
+                $callerFile = $result->caller();
+
+                assert($callerFile !== null);
+
+                $caller = $this->categorizeFile($callerFile, $test);
+            }
+
+            return IssueTrigger::from($callee, $caller);
         }
 
-        if (isset($trace[1]['file'])) {
-            $caller = $this->categorizeFile($trace[1]['file'], $test);
-        }
-
-        return IssueTrigger::from($callee, $caller);
+        // @codeCoverageIgnoreStart
+        return IssueTrigger::from(null, null);
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -386,11 +682,69 @@ final class ErrorHandler
     }
 
     /**
-     * @return list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}>
+     * @param non-empty-string $file
+     */
+    private function categorizeFileWithoutTest(string $file): Code
+    {
+        if (SourceFilter::instance()->includes($file)) {
+            return Code::FirstParty;
+        }
+
+        if ($this->excludeList->isExcluded($file)) {
+            return Code::PHPUnit;
+        }
+
+        return Code::ThirdParty;
+    }
+
+    /**
+     * @param list<StackFrame> $trace
+     */
+    private function triggerForUserlandDeprecationWithoutTest(string $message, array $trace): IssueTrigger
+    {
+        foreach ($this->issueTriggerResolvers as $resolver) {
+            $result = $resolver->resolve($trace, $message);
+
+            if ($result === null) {
+                continue;
+            }
+
+            $callee = null;
+
+            if ($result->hasCallee()) {
+                $calleeFile = $result->callee();
+
+                assert($calleeFile !== null);
+
+                $callee = $this->categorizeFileWithoutTest($calleeFile);
+            }
+
+            $caller = null;
+
+            if ($result->hasCaller()) {
+                $callerFile = $result->caller();
+
+                assert($callerFile !== null);
+
+                $caller = $this->categorizeFileWithoutTest($callerFile);
+            }
+
+            return IssueTrigger::from($callee, $caller);
+        }
+
+        // @codeCoverageIgnoreStart
+        return IssueTrigger::from(null, null);
+        // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * @return list<StackFrame>
      */
     private function filteredStackTrace(): array
     {
-        $trace = $this->errorStackTrace();
+        $ignoreArguments = count($this->issueTriggerResolvers) === 1;
+
+        $trace = $this->errorStackTrace($ignoreArguments);
 
         $position = $this->deprecationTriggerFramePosition($trace);
 
@@ -402,7 +756,7 @@ final class ErrorHandler
     }
 
     /**
-     * @return ?array{file: non-empty-string, line: positive-int}
+     * @return ?StackFrame
      */
     private function guessDeprecationFrame(): ?array
     {
@@ -414,13 +768,7 @@ final class ErrorHandler
             return null;
         }
 
-        $frame = $trace[$position];
-
-        if (!isset($frame['file']) || $frame['file'] === '' || !isset($frame['line']) || $frame['line'] < 1) {
-            return null;
-        }
-
-        return ['file' => $frame['file'], 'line' => $frame['line']];
+        return $trace[$position] ?? null;
     }
 
     /**
@@ -431,7 +779,7 @@ final class ErrorHandler
      * deprecation trigger, in other words the location where the deprecation
      * was actually triggered.
      *
-     * @param list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}> $trace
+     * @param list<StackFrame> $trace
      *
      * @return ?non-negative-int
      */
@@ -459,31 +807,63 @@ final class ErrorHandler
     }
 
     /**
-     * @param array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...} $frame
+     * @param StackFrame $frame
      */
     private function frameMatchesDeprecationTrigger(array $frame): bool
     {
-        foreach ($this->deprecationTriggers['functions'] as $function) {
-            if ($this->frameIsFunction($frame, $function)) {
-                return true;
-            }
+        assert($this->deprecationTriggers !== null);
+
+        if (
+            array_any(
+                $this->deprecationTriggers['functions'],
+                /** @param non-empty-string $function */
+                fn (string $function) => $this->frameIsFunction($frame, $function),
+            )) {
+            return true;
         }
 
-        foreach ($this->deprecationTriggers['methods'] as $method) {
-            if ($this->frameIsMethod($frame, $method)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(
+            $this->deprecationTriggers['methods'],
+            /** @param DeprecationMethod $method */
+            fn (array $method) => $this->frameIsMethod($frame, $method),
+        );
     }
 
     /**
-     * @return list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}>
+     * @param non-empty-string $errorFile
+     * @param positive-int     $errorLine
+     *
+     * @return array{non-empty-string, positive-int}
      */
-    private function errorStackTrace(): array
+    private function applyDeprecationFrame(string $errorFile, int $errorLine): array
     {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $deprecationFrame = $this->guessDeprecationFrame();
+
+        if ($deprecationFrame === null) {
+            return [$errorFile, $errorLine];
+        }
+
+        if (isset($deprecationFrame['file']) && $deprecationFrame['file'] !== '') {
+            $errorFile = $deprecationFrame['file'];
+        }
+
+        if (isset($deprecationFrame['line']) && $deprecationFrame['line'] > 0) {
+            $errorLine = $deprecationFrame['line'];
+        }
+
+        return [$errorFile, $errorLine];
+    }
+
+    /**
+     * @return list<StackFrame>
+     */
+    private function errorStackTrace(bool $ignoreArgs = true): array
+    {
+        if ($ignoreArgs) {
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        } else {
+            $trace = debug_backtrace();
+        }
 
         $i = 0;
 
@@ -495,8 +875,8 @@ final class ErrorHandler
     }
 
     /**
-     * @param array{class?: class-string, function?: non-empty-string, ...<mixed>} $frame
-     * @param non-empty-string                                                     $function
+     * @param StackFrame       $frame
+     * @param non-empty-string $function
      */
     private function frameIsFunction(array $frame, string $function): bool
     {
@@ -504,8 +884,8 @@ final class ErrorHandler
     }
 
     /**
-     * @param array{class?: class-string, function?: non-empty-string, ...<mixed>} $frame
-     * @param array{className: class-string, methodName: non-empty-string}         $method
+     * @param StackFrame        $frame
+     * @param DeprecationMethod $method
      */
     private function frameIsMethod(array $frame, array $method): bool
     {
@@ -516,9 +896,12 @@ final class ErrorHandler
     }
 
     /**
+     * @param non-empty-string $errorFile
+     * @param positive-int     $errorLine
+     *
      * @return non-empty-string
      */
-    private function stackTrace(): string
+    private function stackTrace(string $errorFile, int $errorLine): string
     {
         $buffer = '';
 
@@ -541,25 +924,128 @@ final class ErrorHandler
             );
         }
 
+        if ($buffer === '') {
+            // @codeCoverageIgnoreStart
+            $buffer = sprintf("%s:%d\n", $errorFile, $errorLine);
+            // @codeCoverageIgnoreEnd
+        }
+
         return $buffer;
     }
 
-    private function triggerGlobalDeprecations(TestCase $test): void
+    private function triggerTestCaseContextIssues(TestCase $test): ?Throwable
     {
-        foreach ($this->globalDeprecations as $d) {
-            $this->__invoke(...$d);
-        }
-
         $testCaseContext = $this->testCaseContext($test::class, $test->name());
 
-        foreach ($this->testCaseContextDeprecations[$testCaseContext] ?? [] as $d) {
-            $this->__invoke(...$d);
+        foreach ($this->testCaseContextIssues[$testCaseContext] ?? [] as $issue) {
+            [$errorNumber, $errorString, $errorFile, $errorLine, $errorReportingLevel] = $issue;
+
+            $this->deferredIssueErrorReportingLevel = $errorReportingLevel;
+
+            try {
+                $this->__invoke($errorNumber, $errorString, $errorFile, $errorLine);
+            } catch (Throwable $t) {
+                /**
+                 * A previously registered error handler may turn an issue that is
+                 * being forwarded to it into an exception: the exception is control
+                 * flow of the test the issue is attributed to and must not abort
+                 * the test runner.
+                 *
+                 * @see https://github.com/sebastianbergmann/phpunit/issues/6831
+                 */
+                return $t;
+            } finally {
+                $this->deferredIssueErrorReportingLevel = null;
+            }
         }
+
+        return null;
     }
 
     private function testCaseContext(string $className, string $methodName): string
     {
         return "{$className}::{$methodName}";
+    }
+
+    /**
+     * @param list<non-empty-string> $messages
+     *
+     * @return list<callable>
+     */
+    private function activeErrorHandlers(array &$messages = []): array
+    {
+        $activeErrorHandlers = [];
+
+        while (true) {
+            $previousHandler = set_error_handler(static fn () => false);
+
+            restore_error_handler();
+
+            if ($previousHandler === null) {
+                break;
+            }
+
+            $activeErrorHandlers[] = $previousHandler;
+
+            restore_error_handler();
+        }
+
+        $activeErrorHandlers      = array_reverse($activeErrorHandlers);
+        $invalidErrorHandlerStack = false;
+
+        foreach ($activeErrorHandlers as $handler) {
+            if (!is_callable($handler)) {
+                $invalidErrorHandlerStack = true;
+
+                continue;
+            }
+
+            set_error_handler($handler);
+        }
+
+        if ($invalidErrorHandlerStack) {
+            $messages[] = 'At least one error handler is not callable outside the scope it was registered in';
+        }
+
+        return $activeErrorHandlers;
+    }
+
+    /**
+     * @param list<callable> $handlers
+     *
+     * @return list<callable>
+     */
+    private function handlersAboveSelf(array $handlers): array
+    {
+        $position = null;
+
+        foreach ($handlers as $i => $handler) {
+            if ($handler instanceof self) {
+                $position = $i;
+
+                break;
+            }
+        }
+
+        if ($position === null) {
+            return $handlers;
+        }
+
+        return array_slice($handlers, $position + 1);
+    }
+
+    /**
+     * @param list<callable> $handlers
+     */
+    private function isOnStack(array $handlers): bool
+    {
+        foreach ($handlers as $handler) {
+            if ($handler instanceof self) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function deprecationIgnoredByTest(TestMethod $test, string $message): bool
@@ -578,5 +1064,74 @@ final class ErrorHandler
         }
 
         return false;
+    }
+
+    private function forwardToPreviousErrorHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    {
+        if ($this->previousErrorHandler === null || $this->forwardedError !== null) {
+            return false;
+        }
+
+        /**
+         * The previously registered error handler must observe the error reporting level
+         * as it would be without PHPUnit's manipulation of it. The error reporting level
+         * is only restored when it currently is the masked level configured by enable():
+         * for errors suppressed using the @ operator it is the suppression mask set by
+         * PHP and for errors triggered before enable() masked it (or after test code
+         * changed it) it already is the level the previous error handler must observe.
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/issues/6818
+         */
+        $errorReportingLevel = error_reporting();
+        $restoreRequired     = false;
+
+        if ($this->originalErrorReportingLevel !== null &&
+            $errorReportingLevel === ($this->originalErrorReportingLevel & self::UNHANDLEABLE_LEVELS)) {
+            error_reporting($this->originalErrorReportingLevel);
+
+            $restoreRequired = true;
+        }
+
+        /**
+         * An issue that was triggered in a test case context before the test case
+         * was run is forwarded when the test case is prepared: the previously
+         * registered error handler must observe the error reporting level that
+         * was in effect when the error was triggered, for errors suppressed
+         * using the @ operator this is the suppression mask set by PHP.
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/issues/6831
+         */
+        if ($this->deferredIssueErrorReportingLevel !== null) {
+            error_reporting($this->deferredIssueErrorReportingLevel);
+
+            $restoreRequired = true;
+        }
+
+        $this->forwardedError = [$errorNumber, $errorString, $errorFile, $errorLine];
+
+        try {
+            return (bool) ($this->previousErrorHandler)($errorNumber, $errorString, $errorFile, $errorLine);
+        } finally {
+            $this->forwardedError = null;
+
+            if ($restoreRequired) {
+                error_reporting($errorReportingLevel);
+            }
+        }
+    }
+
+    private function forwardToPreviousNonTestCaseErrorHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): void
+    {
+        if ($this->previousNonTestCaseErrorHandler === null || $this->forwardedError !== null) {
+            return;
+        }
+
+        $this->forwardedError = [$errorNumber, $errorString, $errorFile, $errorLine];
+
+        try {
+            ($this->previousNonTestCaseErrorHandler)($errorNumber, $errorString, $errorFile, $errorLine);
+        } finally {
+            $this->forwardedError = null;
+        }
     }
 }
