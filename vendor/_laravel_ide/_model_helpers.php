@@ -5,6 +5,20 @@ namespace App\Models {
     /**
      * App\Models\Comment
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property int $post_id
+     * @property int $user_id
+     * @property string $body
+     * @property int $id
+     * @property-read \App\Models\User $user
+     * @property-read \App\Models\Post $post
+     * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment whereBody($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment whereUserId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment wherePostId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Comment>|Comment query()
@@ -327,6 +341,25 @@ namespace App\Models {
     /**
      * App\Models\Post
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property int $user_id
+     * @property int $likes
+     * @property string $slug
+     * @property string $description
+     * @property string $image
+     * @property int $id
+     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comment> $comments
+     * @property-read int|null $comments_count
+     * @property-read \App\Models\User $user
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereImage($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereDescription($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereSlug($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereLikes($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereUserId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Post>|Post query()
@@ -656,14 +689,20 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $email_verified_at
      * @property string $email
      * @property string $image
+     * @property bool $private_accounte
+     * @property string|null $bio
      * @property string $username
      * @property string $name
      * @property int $id
+     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Post> $posts
+     * @property-read int|null $posts_count
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
      * @property-read int|null $notifications_count
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereUsername($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereBio($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePrivateAccounte($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereImage($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmailVerifiedAt($value)

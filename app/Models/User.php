@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Comment;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Post;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -34,5 +37,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the comments for the blog post.
+     */
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 }
