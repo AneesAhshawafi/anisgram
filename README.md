@@ -20,8 +20,8 @@ This application follows clean architecture principles to ensure maintainability
 
 | Component | Technology / Tool | Description |
 | :--- | :--- | :--- |
-| **Framework** | [Laravel 11.x](https://laravel.com) | Core backend web framework |
-| **Environment** | PHP 8.4 via Docker ([Laravel Sail](https://laravel.com/docs/sail)) | Containerized development runtime |
+| **Framework** | [Laravel 13.x](https://laravel.com) | Core backend web framework |
+| **Environment** | PHP 8.5 via Docker ([Laravel Sail](https://laravel.com/docs/sail)) | Containerized development runtime |
 | **Database** | MySQL 8.4 | Primary relational storage |
 | **Cache & Queue** | Redis (Alpine) | In-memory data store & queue handler |
 | **Code Quality** | [Laravel Pint](https://laravel.com/docs/pint) & [Larastan](https://github.com/larastan/larastan) | Code styling & static analysis |
