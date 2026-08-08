@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Post;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+use App\Models\User;
+
+/**
+ * @extends Factory<Post>
+ */
+class PostFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        $images = ["pic1", "pic2", "pic3", "pic4"];
+        return [
+            "description" => fake()->sentence(),
+            'slug' => fake()->regexify('[A-Za-z0-9]{10}'),
+            'user_id' => User::factory(),
+            'image' => '/posts' . fake()->randomElement($images),
+
+
+        ];
+    }
+}
