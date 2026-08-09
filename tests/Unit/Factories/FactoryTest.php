@@ -4,11 +4,15 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 // ─── UserFactory ─────────────────────────────────────────────────────────────
 
+/**
+ * Tests that UserFactory generates a complete, valid User model with all required attributes.
+ */
 it('user factory creates a valid user record', function () {
     $user = User::factory()->create();
 
@@ -21,30 +25,42 @@ it('user factory creates a valid user record', function () {
     $this->assertDatabaseHas('users', ['email' => $user->email]);
 });
 
+/**
+ * Tests that UserFactory generates unique email addresses when creating multiple users.
+ */
 it('user factory generates a unique email for each user', function () {
     [$first, $second] = User::factory()->count(2)->create();
 
     expect($first->email)->not->toBe($second->email);
 });
 
+/**
+ * Tests that UserFactory sets 'email_verified_at' timestamp by default.
+ */
 it('user factory sets email_verified_at by default', function () {
     $user = User::factory()->create();
 
     expect($user->email_verified_at)->not->toBeNull();
 });
 
+/**
+ * Tests that applying the unverified() state modifier to UserFactory sets 'email_verified_at' to null.
+ */
 it('user factory unverified state nullifies email_verified_at', function () {
     $user = User::factory()->unverified()->create();
 
     expect($user->email_verified_at)->toBeNull();
     $this->assertDatabaseHas('users', [
-        'email'             => $user->email,
+        'email' => $user->email,
         'email_verified_at' => null,
     ]);
 });
 
 // ─── PostFactory ──────────────────────────────────────────────────────────────
 
+/**
+ * Tests that PostFactory creates a valid Post model with slug, description, image, and user_id.
+ */
 it('post factory creates a valid post record', function () {
     $post = Post::factory()->create();
 
@@ -57,12 +73,18 @@ it('post factory creates a valid post record', function () {
     $this->assertDatabaseHas('posts', ['id' => $post->id]);
 });
 
+/**
+ * Tests that PostFactory automatically creates a parent User model if no user_id is provided.
+ */
 it('post factory automatically creates an associated user', function () {
     $post = Post::factory()->create();
 
     $this->assertDatabaseHas('users', ['id' => $post->user_id]);
 });
 
+/**
+ * Tests that PostFactory can associate a Post with an existing User when user_id is explicitly passed.
+ */
 it('post factory accepts an explicit user_id', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create(['user_id' => $user->id]);
@@ -72,6 +94,9 @@ it('post factory accepts an explicit user_id', function () {
 
 // ─── CommentFactory ───────────────────────────────────────────────────────────
 
+/**
+ * Tests that CommentFactory creates a valid Comment model with body, user_id, and post_id.
+ */
 it('comment factory creates a valid comment record', function () {
     $comment = Comment::factory()->create();
 
@@ -83,6 +108,9 @@ it('comment factory creates a valid comment record', function () {
     $this->assertDatabaseHas('comments', ['id' => $comment->id]);
 });
 
+/**
+ * Tests that CommentFactory automatically creates parent User and Post models if not explicitly provided.
+ */
 it('comment factory automatically creates an associated user and post', function () {
     $comment = Comment::factory()->create();
 
@@ -90,9 +118,12 @@ it('comment factory automatically creates an associated user and post', function
     $this->assertDatabaseHas('posts', ['id' => $comment->post_id]);
 });
 
+/**
+ * Tests that CommentFactory accepts explicit user_id and post_id foreign key overrides.
+ */
 it('comment factory accepts explicit user_id and post_id', function () {
-    $user    = User::factory()->create();
-    $post    = Post::factory()->create(['user_id' => $user->id]);
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $user->id]);
     $comment = Comment::factory()->create([
         'user_id' => $user->id,
         'post_id' => $post->id,

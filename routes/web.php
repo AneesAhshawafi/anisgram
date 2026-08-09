@@ -20,4 +20,4 @@ Route::middleware('auth')->group(function () {
 
 Route::get('p/create', [PostController::class, 'create'])->name('create_post');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

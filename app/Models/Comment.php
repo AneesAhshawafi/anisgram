@@ -2,26 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-use App\Models\Post;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-use App\Models\User;
 
 class Comment extends Model
 {
-    use hasFactory;
-
+    use HasFactory;
 
     /**
      * Get the post that owns the comment.
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User
-        ::class);
+        return $this->belongsTo(User::class);
     }
 
     /**

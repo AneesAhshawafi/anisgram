@@ -14,10 +14,14 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.5'
+        php-version: '8.3'
         extensions: mbstring, pdo, pdo_sqlite
     - name: Install Dependencies
       run: composer install --prefer-dist --no-progress
+    - name: Prepare Environment
+      run: |
+        cp .env.example .env
+        php artisan key:generate
     - name: Run Code Style Checks
       run: ./vendor/bin/pint --test
     - name: Execute Tests
