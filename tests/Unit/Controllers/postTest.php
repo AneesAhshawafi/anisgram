@@ -58,14 +58,14 @@ it('allows an authenticated user to store a post with a valid image', function (
 
     $response = $this->actingAs($user)->post(route('store_post'), [
         'description' => 'This is my brand new post',
-        'image'       => $file,
+        'image' => $file,
     ]);
 
     $response->assertRedirect();
     $response->assertSessionHas('success', 'Post created successfully!');
 
     $this->assertDatabaseHas('posts', [
-        'user_id'     => $user->id,
+        'user_id' => $user->id,
         'description' => 'This is my brand new post',
     ]);
 
@@ -107,7 +107,7 @@ it('fails validation when uploading an invalid file type', function () {
 
     $response = $this->actingAs($user)->post(route('store_post'), [
         'description' => 'Post with PDF',
-        'image'       => $file,
+        'image' => $file,
     ]);
 
     $response->assertSessionHasErrors(['image']);

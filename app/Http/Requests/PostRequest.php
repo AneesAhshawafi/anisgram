@@ -23,17 +23,18 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "description" => "required",
-            "image" => ["required", "mimes:jpeg,jpg,png,gif"]
+            'description' => 'required',
+            'image' => ['required', 'mimes:jpeg,jpg,png,gif'],
         ];
     }
+
     public function messages(): array
     {
         return [
-            "description.required" => "Decription is required",
-            "image.required" => "Please upload your image",
-            "image.mimes" => "The file you uploaded is not supported,
-            supported files are jpeg,jpg,png, or gif"
+            'description.required' => 'Decription is required',
+            'image.required' => 'Please upload your image',
+            'image.mimes' => 'The file you uploaded is not supported,
+            supported files are jpeg,jpg,png, or gif',
         ];
     }
 }

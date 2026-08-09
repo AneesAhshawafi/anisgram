@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-
-use Illuminate\Support\Facades\Route;
-use App\Models\User;
-use App\Models\Comment;
 
 class PostController extends Controller
 {
@@ -45,7 +43,6 @@ class PostController extends Controller
     //     $data["image"] = $image;
     //     $data["slug"] = Str::random(10);
 
-
     //     // $data["user_id"] = auth()->user()->id;
     //     $data["user_id"] = auth()->id();
     //     // $post = new Post();
@@ -65,6 +62,7 @@ class PostController extends Controller
         $data['slug'] = Str::random(10);
         // Create post via relationship (user_id is set automatically)
         $post = auth()->user()->posts()->create($data);
+
         // Return redirect with a success flash message
         // return redirect()->route('posts.show', $post)
         //     ->with('success', 'Post created successfully!');
@@ -101,7 +99,7 @@ class PostController extends Controller
 
         $validated = $request->validate([
             'description' => ['sometimes', 'required', 'string'],
-            'image'       => ['sometimes', 'required', 'string'],
+            'image' => ['sometimes', 'required', 'string'],
         ]);
 
         $post->update($validated);
