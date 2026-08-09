@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequest;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -28,23 +31,43 @@ class PostController extends Controller
         return view('posts.create');
     }
 
+    // /**
+    //  * Store a newly created post in storage.
+    //  */
+    // public function store(PostRequest $request)
+    // {
+    //     // dd($request['image']);
+    //     $data['description'] = $request->description;
+
+    //     $image = $request->file('image')->store("posts", "public");
+    //     $data["image"] = $image;
+    //     $data["slug"] = Str::random(10);
+
+    //     // $data["user_id"] = auth()->user()->id;
+    //     $data["user_id"] = auth()->id();
+    //     // $post = new Post();
+    //     // $post->description = $request->description;
+    //     // $post->image = $request->image;
+    //     auth()->user()->posts()->create($data);
+    // }
     /**
      * Store a newly created post in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(PostRequest $request)
     {
-        $validated = $request->validate([
-            'description' => ['required', 'string'],
-            'image' => ['required', 'string'],
-        ]);
+        // Get validated data from PostRequest
+        $data = $request->validated();
+        // Handle file upload
+        $data['image'] = $request->file('image')->store('posts', 'public');
+        $data['slug'] = Str::random(10);
+        // Create post via relationship (user_id is set automatically)
+        $post = auth()->user()->posts()->create($data);
 
-        $post = $request->user()->posts()->create([
-            'description' => $validated['description'],
-            'image' => $validated['image'],
-            'slug' => Str::random(10),
-        ]);
-
-        return response()->json($post->load('user'), 201);
+        // Return redirect with a success flash message
+        // return redirect()->route('posts.show', $post)
+        //     ->with('success', 'Post created successfully!');
+        return redirect()->back()
+            ->with('success', 'Post created successfully!');
     }
 
     /**

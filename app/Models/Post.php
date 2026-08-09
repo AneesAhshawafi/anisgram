@@ -13,6 +13,8 @@ class Post extends Model
     /** @use HasFactory<PostFactory> */
     use HasFactory;
 
+    protected $fillable = ['description', 'slug', 'image'];
+
     /**
      * Get the post that owns the comment.
      */
