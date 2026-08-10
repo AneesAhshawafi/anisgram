@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::post('p/create', [PostController::class, 'store'])->name('store_post');
     // slug is the column name we want to search for
     Route::get('p/{post:slug}', [PostController::class, 'show'])->name('show_post');
-    //comments
+    // comments
     Route::post('p/{post:slug}/comment', [CommentController::class, 'store'])->name('store_comment');
 });
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

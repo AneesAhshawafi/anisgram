@@ -23,13 +23,14 @@ class CommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "body" => "required",
+            'body' => 'required',
         ];
     }
+
     public function messages(): array
     {
         return [
-            "body.required" => "Please write a comment",
+            'body.required' => 'Please write a comment',
         ];
     }
 }

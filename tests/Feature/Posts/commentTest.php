@@ -2,8 +2,8 @@
 
 // use Tests\TestCase;
 
-use App\Models\User;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -17,7 +17,7 @@ it('redirects guests attempting to post a comment', function () {
     $post = Post::factory()->create();
 
     $response = $this->post(route('store_comment', $post), [
-        "body" => "Guest Comment Attempt"
+        'body' => 'Guest Comment Attempt',
     ]);
 
     $response->assertRedirect(route('login'));

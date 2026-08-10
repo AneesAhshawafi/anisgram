@@ -1,13 +1,12 @@
 use App\Models\Comment;
 <?php
 
+use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-
-use App\Models\Comment;
 
 uses(RefreshDatabase::class);
 
@@ -116,7 +115,6 @@ it('fails validation when uploading an invalid file type', function () {
     $this->assertDatabaseCount('posts', 0);
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Show View Tests
@@ -197,13 +195,13 @@ it('accepts all supported image file extensions', function (string $filename) {
     $file = UploadedFile::fake()->image($filename);
 
     $response = $this->actingAs($user)->post(route('store_post'), [
-        'description' => 'Testing image extension ' . $filename,
+        'description' => 'Testing image extension '.$filename,
         'image' => $file,
     ]);
 
     $response->assertSessionHasNoErrors();
     $this->assertDatabaseHas('posts', [
         'user_id' => $user->id,
-        'description' => 'Testing image extension ' . $filename,
+        'description' => 'Testing image extension '.$filename,
     ]);
 })->with(['photo.jpeg', 'photo.jpg', 'photo.png', 'photo.gif']);
