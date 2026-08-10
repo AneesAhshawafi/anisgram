@@ -195,13 +195,13 @@ it('accepts all supported image file extensions', function (string $filename) {
     $file = UploadedFile::fake()->image($filename);
 
     $response = $this->actingAs($user)->post(route('store_post'), [
-        'description' => 'Testing image extension '.$filename,
+        'description' => 'Testing image extension ' . $filename,
         'image' => $file,
     ]);
 
     $response->assertSessionHasNoErrors();
     $this->assertDatabaseHas('posts', [
         'user_id' => $user->id,
-        'description' => 'Testing image extension '.$filename,
+        'description' => 'Testing image extension ' . $filename,
     ]);
 })->with(['photo.jpeg', 'photo.jpg', 'photo.png', 'photo.gif']);
