@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -19,5 +20,9 @@ Route::middleware('auth')->group(function () {
     // Posts
     Route::get('p/create', [PostController::class, 'create'])->name('create_post');
     Route::post('p/create', [PostController::class, 'store'])->name('store_post');
+    // slug is the column name we want to search for
+    Route::get('p/{post:slug}', [PostController::class, 'show'])->name('show_post');
+    // comments
+    Route::post('p/{post:slug}/comment', [CommentController::class, 'store'])->name('store_comment');
 });
 require __DIR__.'/auth.php';
