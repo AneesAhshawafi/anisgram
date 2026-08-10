@@ -31,25 +31,6 @@ class PostController extends Controller
         return view('posts.create');
     }
 
-    // /**
-    //  * Store a newly created post in storage.
-    //  */
-    // public function store(PostRequest $request)
-    // {
-    //     // dd($request['image']);
-    //     $data['description'] = $request->description;
-
-    //     $image = $request->file('image')->store("posts", "public");
-    //     $data["image"] = $image;
-    //     $data["slug"] = Str::random(10);
-
-    //     // $data["user_id"] = auth()->user()->id;
-    //     $data["user_id"] = auth()->id();
-    //     // $post = new Post();
-    //     // $post->description = $request->description;
-    //     // $post->image = $request->image;
-    //     auth()->user()->posts()->create($data);
-    // }
     /**
      * Store a newly created post in storage.
      */
@@ -75,8 +56,10 @@ class PostController extends Controller
      */
     public function show(Post $post): View
     {
-        $post->load(['user', 'comments.user']);
 
+        // $post = Post::find($id);
+        // // dd($post);
+        // die($post->image);
         return view('posts.show', compact('post'));
     }
 

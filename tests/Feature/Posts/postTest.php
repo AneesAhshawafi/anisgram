@@ -1,3 +1,4 @@
+use App\Models\Comment;
 <?php
 
 use App\Models\Post;
@@ -5,9 +6,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+use App\Models\Comment;
+
+uses(RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -113,3 +115,95 @@ it('fails validation when uploading an invalid file type', function () {
     $response->assertSessionHasErrors(['image']);
     $this->assertDatabaseCount('posts', 0);
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Show View Tests
+|--------------------------------------------------------------------------
+*/
+
+it('redirects guests attempting to view a post', function () {
+    $post = Post::factory()->create();
+
+    $response = $this->get(route('show_post', $post));
+
+    $response->assertRedirect(route('login'));
+});
+
+it('renders the post show view for authenticated users', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $user->id]);
+
+    $response = $this->actingAs($user)->get(route('show_post', $post));
+
+    $response->assertOk();
+    $response->assertViewIs('posts.show');
+    $response->assertViewHas('post', function ($viewPost) use ($post) {
+        return $viewPost->id === $post->id;
+    });
+});
+
+it('returns 404 when requesting a post with an invalid slug', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/p/invalid-slug-xyz');
+
+    $response->assertNotFound();
+});
+
+it('displays existing comments on the post show page', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create();
+
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'body' => 'Unique comment text to test view output',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('show_post', $post));
+
+    $response->assertOk();
+    $response->assertSee('Unique comment text to test view output');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Business Logic & Edge Case Tests
+|--------------------------------------------------------------------------
+*/
+
+it('generates a 10-character random slug upon post creation', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $file = UploadedFile::fake()->image('photo.jpg');
+
+    $this->actingAs($user)->post(route('store_post'), [
+        'description' => 'Testing slug generation',
+        'image' => $file,
+    ]);
+
+    $post = Post::where('user_id', $user->id)->first();
+
+    expect($post)->not->toBeNull();
+    expect(strlen($post->slug))->toBe(10);
+});
+
+it('accepts all supported image file extensions', function (string $filename) {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $file = UploadedFile::fake()->image($filename);
+
+    $response = $this->actingAs($user)->post(route('store_post'), [
+        'description' => 'Testing image extension ' . $filename,
+        'image' => $file,
+    ]);
+
+    $response->assertSessionHasNoErrors();
+    $this->assertDatabaseHas('posts', [
+        'user_id' => $user->id,
+        'description' => 'Testing image extension ' . $filename,
+    ]);
+})->with(['photo.jpeg', 'photo.jpg', 'photo.png', 'photo.gif']);
