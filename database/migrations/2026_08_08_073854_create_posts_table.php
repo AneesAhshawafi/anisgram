@@ -1,3 +1,6 @@
+use App\Models\Post;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 <?php
 
 use Illuminate\Database\Migrations\Migration;

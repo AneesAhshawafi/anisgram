@@ -48,7 +48,7 @@ class PostController extends Controller
         // Return redirect with a success flash message
         // return redirect()->route('posts.show', $post)
         //     ->with('success', 'Post created successfully!');
-        return redirect('/p/' . $data['slug'])->with('success', 'Post created successfully!');
+        return redirect('/p/'.$data['slug'])->with('success', 'Post created successfully!');
 
         // return redirect()->back()
         //     ->with('success', 'Post created successfully!');
@@ -91,7 +91,7 @@ class PostController extends Controller
             }
             $post->update($data);
 
-            return redirect('/p/' . $post->slug);
+            return redirect('/p/'.$post->slug);
         }
 
         return redirect()->back()->withErrors(['error' => 'You do not have the permission to edit this post']);
@@ -103,7 +103,7 @@ class PostController extends Controller
     public function destroy(Request $request, Post $post)
     {
         if ($post->user->id === auth()->id()) {
-            Storage::delete('public' . $post->slug);
+            Storage::delete('public'.$post->slug);
             $post->delete($post->id);
 
             return redirect(url('home'));

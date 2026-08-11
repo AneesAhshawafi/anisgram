@@ -2,15 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-
-use Illuminate\Support\Facades\Route;
-use App\Models\User;
-use Illuminate\Support\Facades\Storage;
-use App\Models\Post;
-use App\Models\Comment;
-use Illuminate\Support\Str;
 
 class PostRequest extends FormRequest
 {
