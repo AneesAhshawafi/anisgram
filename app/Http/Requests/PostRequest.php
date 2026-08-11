@@ -5,6 +5,13 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+use Illuminate\Support\Facades\Route;
+use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Post;
+use App\Models\Comment;
+use Illuminate\Support\Str;
+
 class PostRequest extends FormRequest
 {
     /**
@@ -24,7 +31,10 @@ class PostRequest extends FormRequest
     {
         return [
             'description' => 'required',
-            'image' => ['required', 'mimes:jpeg,jpg,png,gif'],
+            'image' => [
+                $this->isMethod('post') ? 'required' : 'nullable',
+                'mimes:jpeg,jpg,png,gif',
+            ],
         ];
     }
 
@@ -32,7 +42,6 @@ class PostRequest extends FormRequest
     {
         return [
             'description.required' => 'Decription is required',
-            'image.required' => 'Please upload your image',
             'image.mimes' => 'The file you uploaded is not supported,
             supported files are jpeg,jpg,png, or gif',
         ];
