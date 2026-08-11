@@ -1,4 +1,15 @@
 <x-app-layout>
+    <div class="flex flex-col justify-center items-center w-full ">
+        @if ($errors->any())
+            <div class="w-full bg-red-700 p-5 mb-5 rounded-xl">
+                <ul class="list-disc pl-4">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    </div>
     <div class="text-sm h-screen md:flex md:flex-row">
         {{-- left side --}}
         <div class="h-full md:w-7/12 bg-black flex items-center">
@@ -12,12 +23,36 @@
                 <div class="flex items-center p-5">
                     <img src="{{ $post->user->image }}" alt="{{ $post->user->username }}"
                         class="mr-5 h-10 w-10 rounded-full">
-                    <a href="/{{ $post->user->username }}" class="font-bold text-white">{{ $post->user->username }}</a>
+                    <div class="grow">
+
+                        <a href="/{{ $post->user->username }}"
+                            class="font-bold text-white">{{ $post->user->username }}</a>
+                    </div>
+                    @if ($post->user->id == auth()->id())
+                        <div class=" text-yellow-300" title="{{ __('edit your post') }}">
+                            <a href="/p/{{ $post->slug }}/edit">
+
+                                <span class="material-symbols-outlined">
+                                    edit_square
+                                </span>
+                            </a>
+                        </div>
+                    @endif
+                    <form action="/p/{{ $post->slug }}/delete" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            onclick="return confirm('Are you sure you want to delete this post?')"><span
+                                class="material-symbols-outlined text-red-500 pl-2">
+                                delete
+                            </span></button>
+                    </form>
                 </div>
             </div>{{-- top --}}
             {{-- middle --}}
             <div class="grow overflow-y-auto">
                 <div class="flex items-start p-5">
+
                     {{-- <img src="{{ $post->user->image }}" class="mr-5 h-10 w-10 rounded-full"> --}}
                     <div class="text-white text-sm">
                         {{-- <a href="/{{ $post->user->username }}"
@@ -51,7 +86,8 @@
                         <div class="flex flex-row">
                             <textarea name="body" id="comment_body" rows="1" placeholder="Add a comment ..."
                                 class="text-white p-2 grow resize-none overflow-hidden border-none rounded-md  placeholder-gray-400  outline-0 focus:right-0 bg-gray-800"></textarea>
-                            <button type="submit" class="ml-5 border-none  text-blue-500">Post</button>
+                            <button type="submit" class="ml-5 border-none  text-blue-500"
+                                title='{{ __('Post your comment') }}'>{{ __('Post') }}</button>
                         </div>
                     </form>
                 </div>

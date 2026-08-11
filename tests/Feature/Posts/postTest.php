@@ -1,4 +1,5 @@
 use App\Models\Comment;
+use Illuminate\Support\Facades\Route;
 <?php
 
 use App\Models\Comment;
@@ -205,3 +206,144 @@ it('accepts all supported image file extensions', function (string $filename) {
         'description' => 'Testing image extension '.$filename,
     ]);
 })->with(['photo.jpeg', 'photo.jpg', 'photo.png', 'photo.gif']);
+
+/*
+|--------------------------------------------------------------------------
+| Edit View Tests
+|--------------------------------------------------------------------------
+*/
+it('redirects guests away from the post edit form', function () {
+    $post = Post::factory()->create();
+    $response = $this->get(route('edit_post', $post));
+    $response->assertRedirect(route('login'));
+});
+it('renders the edit form for the post owner', function () {
+    $owner = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $owner->id]);
+    $response = $this->actingAs($owner)->get(route('edit_post', $post));
+    $response->assertOk();
+    $response->assertViewIs('posts.edit');
+    $response->assertViewHas('post', fn ($viewPost) => $viewPost->id === $post->id);
+});
+it('prevents non-owners from accessing the edit form', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $owner->id]);
+    $response = $this->actingAs($otherUser)->get(route('edit_post', $post));
+    $response->assertRedirect();
+    $response->assertSessionHasErrors(['error' => 'You do not have the permission to edit this post']);
+});
+/*
+|--------------------------------------------------------------------------
+| Update Action Tests
+|--------------------------------------------------------------------------
+*/
+it('redirects guests attempting to update a post', function () {
+    $post = Post::factory()->create();
+    $response = $this->patch(route('update_post', $post), [
+        'description' => 'Updated content',
+    ]);
+    $response->assertRedirect(route('login'));
+});
+it('allows post owner to update post description', function () {
+    $owner = User::factory()->create();
+    $post = Post::factory()->create([
+        'user_id' => $owner->id,
+        'description' => 'Original description',
+    ]);
+    $response = $this->actingAs($owner)->patch(route('update_post', $post), [
+        'description' => 'Updated description',
+    ]);
+    $response->assertRedirect('/p/'.$post->slug);
+    $this->assertDatabaseHas('posts', [
+        'id' => $post->id,
+        'description' => 'Updated description',
+    ]);
+});
+it('allows post owner to update post with a new image', function () {
+    Storage::fake('public');
+    $owner = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $owner->id]);
+    $newImage = UploadedFile::fake()->image('new_photo.jpg');
+    $response = $this->actingAs($owner)->patch(route('update_post', $post), [
+        'description' => 'Updated description with image',
+        'image' => $newImage,
+    ]);
+    $response->assertRedirect('/p/'.$post->slug);
+    $post->refresh();
+    expect($post->description)->toBe('Updated description with image');
+    Storage::disk('public')->assertExists($post->image);
+});
+it('fails validation when updating post with an empty description', function () {
+    $owner = User::factory()->create();
+    $post = Post::factory()->create([
+        'user_id' => $owner->id,
+        'description' => 'Original description',
+    ]);
+    $response = $this->actingAs($owner)->patch(route('update_post', $post), [
+        'description' => '',
+    ]);
+    $response->assertSessionHasErrors(['description']);
+    $this->assertDatabaseHas('posts', [
+        'id' => $post->id,
+        'description' => 'Original description',
+    ]);
+});
+it('fails validation when updating with an invalid image type', function () {
+    Storage::fake('public');
+    $owner = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $owner->id]);
+    $invalidFile = UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf');
+    $response = $this->actingAs($owner)->patch(route('update_post', $post), [
+        'description' => 'Valid description',
+        'image' => $invalidFile,
+    ]);
+    $response->assertSessionHasErrors(['image']);
+});
+it('prevents non-owners from updating another user post', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $post = Post::factory()->create([
+        'user_id' => $owner->id,
+        'description' => 'Original description',
+    ]);
+    $response = $this->actingAs($otherUser)->patch(route('update_post', $post), [
+        'description' => 'Hacked description',
+    ]);
+    $response->assertRedirect();
+    $response->assertSessionHasErrors(['error' => 'You do not have the permission to edit this post']);
+    $this->assertDatabaseHas('posts', [
+        'id' => $post->id,
+        'description' => 'Original description',
+    ]);
+});
+/*
+|--------------------------------------------------------------------------
+| Delete / Destroy Action Tests
+|--------------------------------------------------------------------------
+*/
+it('redirects guests attempting to delete a post', function () {
+    $post = Post::factory()->create();
+    $response = $this->delete(route('delete_post', $post));
+    $response->assertRedirect(route('login'));
+});
+it('allows post owner to delete their post', function () {
+    $owner = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $owner->id]);
+    $response = $this->actingAs($owner)->delete(route('delete_post', $post));
+    $response->assertRedirect(url('home'));
+    $this->assertDatabaseMissing('posts', [
+        'id' => $post->id,
+    ]);
+});
+it('prevents non-owners from deleting another user post', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $owner->id]);
+    $response = $this->actingAs($otherUser)->delete(route('delete_post', $post));
+    $response->assertRedirect();
+    $response->assertSessionHasErrors(['error' => 'You do not have the permission to delete this post']);
+    $this->assertDatabaseHas('posts', [
+        'id' => $post->id,
+    ]);
+});

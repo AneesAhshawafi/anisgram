@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -38,16 +38,20 @@ class PostController extends Controller
         // Get validated data from PostRequest
         $data = $request->validated();
         // Handle file upload
-        $data['image'] = $request->file('image')->store('posts', 'public');
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('posts', 'public');
+        }
         $data['slug'] = Str::random(10);
         // Create post via relationship (user_id is set automatically)
-        $post = auth()->user()->posts()->create($data);
+        auth()->user()->posts()->create($data);
 
         // Return redirect with a success flash message
         // return redirect()->route('posts.show', $post)
         //     ->with('success', 'Post created successfully!');
-        return redirect()->back()
-            ->with('success', 'Post created successfully!');
+        return redirect('/p/'.$data['slug'])->with('success', 'Post created successfully!');
+
+        // return redirect()->back()
+        //     ->with('success', 'Post created successfully!');
     }
 
     /**
@@ -65,28 +69,32 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified post.
      */
-    public function edit(Post $post): View
+    public function edit(Request $request, Post $post)
     {
-        abort_if(request()->user()->id !== $post->user_id, 403);
+        if ($post->user->id === auth()->id()) {
+            return view('posts.edit', compact('post'));
+        }
 
-        return view('posts.edit', compact('post'));
+        return redirect()->back()->withErrors(['error' => 'You do not have the permission to edit this post']);
     }
 
     /**
      * Update the specified post in storage.
      */
-    public function update(Request $request, Post $post): JsonResponse
+    public function update(PostRequest $request, Post $post)
     {
-        abort_if($request->user()->id !== $post->user_id, 403, 'You do not own this post.');
+        if ($post->user->id === auth()->id()) {
 
-        $validated = $request->validate([
-            'description' => ['sometimes', 'required', 'string'],
-            'image' => ['sometimes', 'required', 'string'],
-        ]);
+            $data = $request->validated();
+            if ($request->has('image')) {
+                $data['image'] = $request->file('image')->store('posts', 'public');
+            }
+            $post->update($data);
 
-        $post->update($validated);
+            return redirect('/p/'.$post->slug);
+        }
 
-        return response()->json($post->fresh(), 200);
+        return redirect()->back()->withErrors(['error' => 'You do not have the permission to edit this post']);
     }
 
     /**
@@ -94,10 +102,13 @@ class PostController extends Controller
      */
     public function destroy(Request $request, Post $post)
     {
-        abort_if($request->user()->id !== $post->user_id, 403, 'You do not own this post.');
+        if ($post->user->id === auth()->id()) {
+            Storage::delete('public'.$post->slug);
+            $post->delete($post->id);
 
-        $post->delete();
+            return redirect(url('home'));
+        }
 
-        return response()->noContent();
+        return redirect()->back()->withErrors(['error' => 'You do not have the permission to delete this post']);
     }
 }
