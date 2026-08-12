@@ -1,5 +1,7 @@
-use App\Models\Post;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use App\Models\Post;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
 <?php
 
