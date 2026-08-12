@@ -17,7 +17,8 @@ class PostController extends Controller
      */
     public function index(): View
     {
-        $posts = Post::with(['user', 'comments'])->latest()->get();
+        // $posts = Post::with(['user', 'comments'])->latest()->get();
+        $posts = Post::all();
 
         return view('posts.index', compact('posts'));
     }

@@ -1,3 +1,8 @@
+use Illuminate\Support\Facades\Route;
+use App\Models\Post;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 <x-app-layout>
     <div class="flex flex-col justify-center items-center w-full ">
         @if ($errors->any())
@@ -37,16 +42,16 @@
                                 </span>
                             </a>
                         </div>
+                        <form action="/p/{{ $post->slug }}/delete" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                onclick="return confirm('Are you sure you want to delete this post?')"><span
+                                    class="material-symbols-outlined text-red-500 pl-2">
+                                    delete
+                                </span></button>
+                        </form>
                     @endif
-                    <form action="/p/{{ $post->slug }}/delete" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            onclick="return confirm('Are you sure you want to delete this post?')"><span
-                                class="material-symbols-outlined text-red-500 pl-2">
-                                delete
-                            </span></button>
-                    </form>
                 </div>
             </div>{{-- top --}}
             {{-- middle --}}
@@ -61,7 +66,7 @@
                     </div>
                 </div>
                 {{-- comments --}}
-                <h2 class="text-white">Comments</h2>
+                <h2 class="text-white pl-3">Comments</h2>
                 <div class=" border-t-2">
 
                     @foreach ($post->comments as $comment)
@@ -84,15 +89,14 @@
                     <form action="/p/{{ $post->slug }}/comment" method="POST">
                         @csrf
                         <div class="flex flex-row">
-                            <textarea name="body" id="comment_body" rows="1" placeholder="Add a comment ..."
-                                class="text-white p-2 grow resize-none overflow-hidden border-none rounded-md  placeholder-gray-400  outline-0 focus:right-0 bg-gray-800"></textarea>
-                            <button type="submit" class="ml-5 border-none  text-blue-500"
-                                title='{{ __('Post your comment') }}'>{{ __('Post') }}</button>
+                            <textarea name="body" id="comment_body" rows="1" placeholder="{{ __('Add a comment ...') }}"
+                                class="comment-feild"></textarea>
+                            <button type="submit" class="post-comment-btn"
+                                title="{{ __('Post your comment') }}">{{ __('Post') }}</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 </x-app-layout>

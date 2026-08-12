@@ -7,6 +7,26 @@
     .card {
         @apply flex flex-col bg-gray-800 my-4 rounded-xl border border-gray-200 w-full;
     }
+
+    .card-header {
+        @apply flex flex-row items-center p-5 text-white;
+    }
+
+    .card-body {
+        @apply text-white;
+    }
+
+    .card-footer {
+        @apply border-t-gray-200 p-3 mt-5;
+    }
+
+    .comment-feild {
+        @apply text-white p-2 grow resize-none overflow-hidden border-none rounded-md placeholder-gray-400 outline-0 focus:right-0 bg-gray-800;
+    }
+
+    .post-comment-btn {
+        @apply ml-3 border-none text-blue-500;
+    }
 }
 
 @layer utilities {
