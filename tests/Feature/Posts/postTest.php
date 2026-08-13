@@ -1,5 +1,8 @@
 use App\Models\Comment;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 <?php
 
 use App\Models\Comment;
@@ -346,4 +349,123 @@ it('prevents non-owners from deleting another user post', function () {
     $this->assertDatabaseHas('posts', [
         'id' => $post->id,
     ]);
+});
+/*
+|--------------------------------------------------------------------------
+| Home Page (Index) Tests
+|--------------------------------------------------------------------------
+*/
+
+it('redirects guests away from the home page', function () {
+    $response = $this->get(route('home'));
+
+    $response->assertRedirect(route('login'));
+});
+
+it('renders the home index view for authenticated users', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('home'));
+
+    $response->assertOk();
+    $response->assertViewIs('posts.index');
+});
+
+it('passes posts and suggested users to the home index view', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    Post::factory()->count(3)->create(['user_id' => $otherUser->id]);
+
+    $response = $this->actingAs($user)->get(route('home'));
+
+    $response->assertOk();
+    $response->assertViewHas('posts');
+    $response->assertViewHas('suggested_users');
+});
+
+it('displays existing posts on the home page', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create([
+        'description' => 'Unique home page feed post description',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('home'));
+
+    $response->assertOk();
+    $response->assertSee('Unique home page feed post description');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Explore Page Tests
+|--------------------------------------------------------------------------
+*/
+
+it('redirects guests away from the explore page', function () {
+    $response = $this->get(route('explore'));
+
+    $response->assertRedirect(route('login'));
+});
+
+it('renders the explore view for authenticated users', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('explore'));
+
+    $response->assertOk();
+    $response->assertViewIs('posts.explore');
+});
+
+it('excludes the authenticated user own posts from the explore feed', function () {
+    $user = User::factory()->create();
+    $myPost = Post::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('explore'));
+
+    $response->assertOk();
+    $response->assertDontSee('/p/'.$myPost->slug);
+});
+
+it('excludes posts from users with private accounts from the explore feed', function () {
+    $user = User::factory()->create();
+    $privateUser = User::factory()->create(['private_account' => 1]);
+    $privatePost = Post::factory()->create([
+        'user_id' => $privateUser->id,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('explore'));
+
+    $response->assertOk();
+    $response->assertDontSee('/p/'.$privatePost->slug);
+});
+
+it('includes posts from public accounts of other users in the explore feed', function () {
+    $user = User::factory()->create();
+    $publicUser = User::factory()->create(['private_account' => 0]);
+    $publicPost = Post::factory()->create([
+        'user_id' => $publicUser->id,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('explore'));
+
+    $response->assertOk();
+    $response->assertSee('/p/'.$publicPost->slug);
+});
+
+it('paginates posts on the explore page with 12 items per page', function () {
+    $user = User::factory()->create();
+    $publicUser = User::factory()->create(['private_account' => 0]);
+
+    Post::factory()->count(15)->create([
+        'user_id' => $publicUser->id,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('explore'));
+
+    $response->assertOk();
+    $response->assertViewHas('posts', function ($posts) {
+        return $posts->count() === 12;
+    });
 });

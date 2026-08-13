@@ -1,6 +1,6 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -20,10 +20,35 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                @auth
+                    <div class="flex items-center space-x-3">
+                        <div class="space-x-3 text-[1.5rem] mr-2 leading-5">
+                            <a href="{{ route('home') }}" title="{{ __('home page') }}">
+                                {!! url()->current() == route('home')
+                                    ? '<span class="material-symbols-outlined text-white">home</span>'
+                                    : '<span class="material-symbols-outlined text-gray-400">home</span>' !!}
+                            </a>
+                            <a href="{{ route('create_post') }}" title="{{ __('Create new post') }}">
+                                {!! url()->current() == route('create_post')
+                                    ? '<span class="material-symbols-outlined text-white">add</span>'
+                                    : '<span class="material-symbols-outlined text-gray-400">add</span>' !!}
+                            </a>
+                            <a href="{{ route('explore') }}" title="{{ __('Explore') }}">
+                                {!! url()->current() == route('explore')
+                                    ? '<span class="material-symbols-outlined text-white">search</span>'
+                                    : '<span class="material-symbols-outlined text-gray-400">search</span>' !!}
+                            </a>
+                        </div>
+                    </div>
+                @endauth
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                            <div class="mr-2">
+                                <img src="{{ Auth::user()->image }}" alt=""
+                                    class="border border-gray-300 rounded-full h-8 w-8">
+                            </div>
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">

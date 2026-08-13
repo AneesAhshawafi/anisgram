@@ -25,7 +25,10 @@ Route::middleware('auth')->group(function () {
     Route::get('p/{post:slug}/edit', [PostController::class, 'edit'])->name('edit_post');
     Route::patch('p/{post:slug}/update', [PostController::class, 'update'])->name('update_post');
     Route::delete('p/{post:slug}/delete', [PostController::class, 'destroy'])->name('delete_post');
+    // explore posts no middleware
+    Route::get('/explore', [PostController::class, 'explore'])->name('explore');
     // comments
     Route::post('p/{post:slug}/comment', [CommentController::class, 'store'])->name('store_comment');
 });
+
 require __DIR__.'/auth.php';

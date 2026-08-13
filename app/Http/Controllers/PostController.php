@@ -19,8 +19,9 @@ class PostController extends Controller
     {
         // $posts = Post::with(['user', 'comments'])->latest()->get();
         $posts = Post::all();
+        $suggested_users = auth()->user()->suggested_users();
 
-        return view('posts.index', compact('posts'));
+        return view('posts.index', compact(['posts', 'suggested_users']));
     }
 
     /**
@@ -64,6 +65,7 @@ class PostController extends Controller
         // $post = Post::find($id);
         // // dd($post);
         // die($post->image);
+
         return view('posts.show', compact('post'));
     }
 
@@ -111,5 +113,13 @@ class PostController extends Controller
         }
 
         return redirect()->back()->withErrors(['error' => 'You do not have the permission to delete this post']);
+    }
+
+    public function explore()
+    {
+        // whereRelation('user','private_account','=',0) get posts for the users the thier accounts art not private
+        $posts = Post::whereRelation('user', 'private_account', '=', 0)->whereNot('user_id', auth()->id())->simplePaginate(12);
+
+        return view('posts.explore', compact('posts'));
     }
 }

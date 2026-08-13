@@ -18,13 +18,13 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $images = ['pic1', 'pic2', 'pic3', 'pic4'];
+        $images = ['pic1.png', 'pic2.png', 'pic3.png', 'pic4.png'];
 
         return [
             'description' => fake()->sentence(),
             'slug' => fake()->regexify('[A-Za-z0-9]{10}'),
             'user_id' => User::factory(),
-            'image' => '/posts'.fake()->randomElement($images),
+            'image' => '/posts/'.fake()->randomElement($images),
 
         ];
     }
