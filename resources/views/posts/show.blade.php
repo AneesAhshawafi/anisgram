@@ -1,8 +1,3 @@
-use Illuminate\Support\Facades\Route;
-use App\Models\Post;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-use App\Models\User;
 <x-app-layout>
     <div class="flex flex-col justify-center items-center w-full ">
         @if ($errors->any())

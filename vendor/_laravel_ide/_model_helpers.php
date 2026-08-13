@@ -689,7 +689,7 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $email_verified_at
      * @property string $email
      * @property string $image
-     * @property bool $private_accounte
+     * @property bool $private_account
      * @property string|null $bio
      * @property string $username
      * @property string $name
@@ -702,7 +702,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereUsername($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereBio($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePrivateAccounte($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePrivateAccount($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereImage($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmailVerifiedAt($value)
