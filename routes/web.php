@@ -3,14 +3,15 @@
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PostController::class, 'index'])->name('home');
+// Route::get('/', [PostController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
+require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     // profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/explore', [PostController::class, 'explore'])->name('explore');
     // comments
     Route::post('p/{post:slug}/comment', [CommentController::class, 'store'])->name('store_comment');
-});
 
-require __DIR__.'/auth.php';
+    // user profile
+    Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');
+    Route::get('/{user:username}/edit', [UserController::class, 'edit'])->name('edit_user_profile');
+    Route::patch('/{user:username}/update', [UserController::class, 'update'])->name('update_user_profile');
+});
