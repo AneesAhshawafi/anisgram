@@ -29,6 +29,11 @@
     }
 }
 
+.material-symbols-outlined.fill,
+.icon-filled {
+    font-variation-settings: 'FILL' 1;
+}
+
 @layer utilities {
     input[type="file"]::file-selector-button {
         @apply inline-flex items-center py-2 bg-gray-800 border border-transparent font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150 cursor-pointer;

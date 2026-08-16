@@ -10,6 +10,16 @@
             <img src="{{ asset('storage/' . $post->image) }}" class="h-auto w-full object-cover"
                 alt="{{ $post->description }}">
         </div>
+        <div class="flex flex-row">
+            <div class="p-2">
+                <a href="/p/{{ $post->slug }}/like" class=" ">
+                    <span
+                        class="material-symbols-outlined {{ $post->liked(auth()->user()) ? 'fill text-red-500' : '' }} hover:text-gray-400 cursor-pointer mr-3">
+                        favorite
+                    </span>
+                </a>
+            </div>
+        </div>
         <div class="pl-3 mt-3">
 
             <a href="/{{ $post->user->username }}" class="font-bold mr-1">{{ $post->user->username }}</a>
