@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -28,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('p/{post:slug}/delete', [PostController::class, 'destroy'])->name('delete_post');
     // explore posts no middleware
     Route::get('/explore', [PostController::class, 'explore'])->name('explore');
+    // like a post
+    Route::get('/p/{post:slug}/like', LikeController::class)->name('like_post');
     // comments
     Route::post('p/{post:slug}/comment', [CommentController::class, 'store'])->name('store_comment');
 

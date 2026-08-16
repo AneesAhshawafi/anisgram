@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 // use App\Models\User;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -53,5 +54,13 @@ class User extends Authenticatable
     public function suggested_users()
     {
         return User::whereNot('id', auth()->id())->get()->shuffle()->take(5);
+    }
+
+    /**
+     * The posts that belong to (was liked) by the user.
+     */
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'likes');
     }
 }
