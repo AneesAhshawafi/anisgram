@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 <?php
 
 use App\Models\Comment;
@@ -199,14 +200,14 @@ it('accepts all supported image file extensions', function (string $filename) {
     $file = UploadedFile::fake()->image($filename);
 
     $response = $this->actingAs($user)->post(route('store_post'), [
-        'description' => 'Testing image extension '.$filename,
+        'description' => 'Testing image extension ' . $filename,
         'image' => $file,
     ]);
 
     $response->assertSessionHasNoErrors();
     $this->assertDatabaseHas('posts', [
         'user_id' => $user->id,
-        'description' => 'Testing image extension '.$filename,
+        'description' => 'Testing image extension ' . $filename,
     ]);
 })->with(['photo.jpeg', 'photo.jpg', 'photo.png', 'photo.gif']);
 
@@ -226,7 +227,7 @@ it('renders the edit form for the post owner', function () {
     $response = $this->actingAs($owner)->get(route('edit_post', $post));
     $response->assertOk();
     $response->assertViewIs('posts.edit');
-    $response->assertViewHas('post', fn ($viewPost) => $viewPost->id === $post->id);
+    $response->assertViewHas('post', fn($viewPost) => $viewPost->id === $post->id);
 });
 it('prevents non-owners from accessing the edit form', function () {
     $owner = User::factory()->create();
@@ -257,7 +258,7 @@ it('allows post owner to update post description', function () {
     $response = $this->actingAs($owner)->patch(route('update_post', $post), [
         'description' => 'Updated description',
     ]);
-    $response->assertRedirect('/p/'.$post->slug);
+    $response->assertRedirect('/p/' . $post->slug);
     $this->assertDatabaseHas('posts', [
         'id' => $post->id,
         'description' => 'Updated description',
@@ -272,7 +273,7 @@ it('allows post owner to update post with a new image', function () {
         'description' => 'Updated description with image',
         'image' => $newImage,
     ]);
-    $response->assertRedirect('/p/'.$post->slug);
+    $response->assertRedirect('/p/' . $post->slug);
     $post->refresh();
     expect($post->description)->toBe('Updated description with image');
     Storage::disk('public')->assertExists($post->image);
@@ -399,6 +400,7 @@ it('displays existing posts on the home page', function () {
     $response->assertSee('Unique home page feed post description');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Explore Page Tests
@@ -429,7 +431,7 @@ it('excludes the authenticated user own posts from the explore feed', function (
     $response = $this->actingAs($user)->get(route('explore'));
 
     $response->assertOk();
-    $response->assertDontSee('/p/'.$myPost->slug);
+    $response->assertDontSee('/p/' . $myPost->slug);
 });
 
 it('excludes posts from users with private accounts from the explore feed', function () {
@@ -442,7 +444,7 @@ it('excludes posts from users with private accounts from the explore feed', func
     $response = $this->actingAs($user)->get(route('explore'));
 
     $response->assertOk();
-    $response->assertDontSee('/p/'.$privatePost->slug);
+    $response->assertDontSee('/p/' . $privatePost->slug);
 });
 
 it('includes posts from public accounts of other users in the explore feed', function () {
@@ -455,7 +457,7 @@ it('includes posts from public accounts of other users in the explore feed', fun
     $response = $this->actingAs($user)->get(route('explore'));
 
     $response->assertOk();
-    $response->assertSee('/p/'.$publicPost->slug);
+    $response->assertSee('/p/' . $publicPost->slug);
 });
 
 it('paginates posts on the explore page with 12 items per page', function () {
