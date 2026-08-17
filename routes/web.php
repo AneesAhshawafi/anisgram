@@ -38,4 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');
     Route::get('/{user:username}/edit', [UserController::class, 'edit'])->name('edit_user_profile');
     Route::patch('/{user:username}/update', [UserController::class, 'update'])->name('update_user_profile');
+    // follow a user
+    Route::get('/{user:username}/follow', [UserController::class, 'follow'])->name('follow_user');
+    Route::get('/{user:username}/unfollow', [UserController::class, 'unfollow'])->name('unfollow_user');
 });

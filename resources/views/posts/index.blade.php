@@ -1,11 +1,11 @@
 <x-app-layout>
     <div class="flex flex-row max-w-full gap-8 mx-auto">
         {{-- left side --}}
-        <div class="w-[30rem] mx-auto lg:w-[95rem]">
+        <div class="w-[30rem] mx-auto lg:w-[40rem]">
             @forelse ($posts as $post)
                 <x-post :post="$post"></x-post>
             @empty
-                <div class="max-w-2xl gap-8 mx-auto">
+                <div class="max-w-2xl gap-8 mx-auto text-white mt-10">
                     {{ __('Start following your friends and enjoy.') }}
                 </div>
             @endforelse
@@ -15,7 +15,7 @@
             <div class="flex flex-row text-sm">
                 <div class="mr-5">
                     <a href="/{{ auth()->user()->username }}">
-                        <img src="/{{ auth()->user()->image }}" alt="{{ auth()->user()->username }}"
+                        <img src="{{ auth()->user()->image }}" alt="{{ auth()->user()->username }}"
                             class="border border-gray-300 rounded-full aspect-square h-12 w-12">
                     </a>
                 </div>
@@ -41,10 +41,26 @@
                                             class="border border-gray-300 rounded-full  h-12 w-12 aspect-square object-cover">
                                     </a>
                                 </div>
-                                <div class="flex flex-col">
+                                <div class="flex flex-col grow">
                                     <a href="/{{ $suggested_user->username }}"
-                                        class="font-bold text-white">{{ $suggested_user->username }}</a>
+                                        class="font-bold text-white">{{ $suggested_user->username }}
+                                        @if (auth()->user()->isFollower($suggested_user))
+                                            <span class="text-gray-400 text-sm">{{ __('follower') }}</span>
+                                        @endif
+                                    </a>
                                     <div class="text-gray-400 text-sm">{{ $suggested_user->name }}</div>
+                                </div>
+                                <div class="">
+                                    @if (auth()->user()->isPending($suggested_user))
+                                        <a href="/{{ $suggested_user->username }}/unfollow"
+                                            class="text-gray-400 pl-5">{{ __('Requested') }}</a>
+                                    @elseif (auth()->user()->isFollowing($suggested_user))
+                                        <a href="/{{ $suggested_user->username }}/unfollow"
+                                            class="text-blue-500 pl-5">{{ __('Unfollow') }}</a>
+                                    @else
+                                        <a href="/{{ $suggested_user->username }}/follow"
+                                            class="text-blue-500 pl-5">{{ __('Follow') }}</a>
+                                    @endif
                                 </div>
                             </div>
                         </li>

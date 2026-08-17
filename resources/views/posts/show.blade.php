@@ -46,6 +46,19 @@
                                     delete
                                 </span></button>
                         </form>
+                    @else
+                        <div class="">
+                            @if (auth()->user()->isPending($post->user))
+                                <a href="/{{ $post->user->username }}/unfollow"
+                                    class="text-gray-400 pl-5">{{ __('Requested') }}</a>
+                            @elseif (auth()->user()->isFollowing($post->user))
+                                <a href="/{{ $post->user->username }}/unfollow"
+                                    class="text-blue-500 pl-5">{{ __('Unfollow') }}</a>
+                            @else
+                                <a href="/{{ $post->user->username }}/follow"
+                                    class="text-blue-500 pl-5">{{ __('Follow') }}</a>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>{{-- top --}}
