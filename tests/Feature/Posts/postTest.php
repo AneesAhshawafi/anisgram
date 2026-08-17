@@ -385,7 +385,11 @@ it('passes posts and suggested users to the home index view', function () {
 
 it('displays existing posts on the home page', function () {
     $user = User::factory()->create();
+    $postOwner = User::factory()->create();
+    $user->follow($postOwner);
+
     $post = Post::factory()->create([
+        'user_id' => $postOwner->id,
         'description' => 'Unique home page feed post description',
     ]);
 

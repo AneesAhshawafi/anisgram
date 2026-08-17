@@ -35,7 +35,7 @@ class UserController extends Controller
 
         if ($data->has('image')) {
             $path = $request->file('image')->store('users', 'public');
-            $data['image'] = 'storage/'.$path;
+            $data['image'] = '/storage/'.$path;
         }
         $data['private_account'] = $request->has('private_account');
 
@@ -43,5 +43,19 @@ class UserController extends Controller
         session()->flash('success', __('Your profile has been updated successfully!'));
 
         return redirect()->route('user_profile', $user);
+    }
+
+    public function follow(User $user)
+    {
+        auth()->user()->follow($user);
+
+        return back();
+    }
+
+    public function unfollow(User $user)
+    {
+        auth()->user()->unfollow($user);
+
+        return back();
     }
 }

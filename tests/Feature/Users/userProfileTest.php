@@ -180,9 +180,9 @@ it('allows user to update profile image', function () {
     $user->refresh();
 
     $response->assertRedirect(route('user_profile', $user));
-    expect($user->image)->toStartWith('storage/users/');
+    expect($user->image)->toStartWith('/storage/users/');
 
-    $storagePath = str_replace('storage/', '', $user->image);
+    $storagePath = str_replace('/storage/', '', $user->image);
     Storage::disk('public')->assertExists($storagePath);
 });
 
