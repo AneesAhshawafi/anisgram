@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserProfileRequest;
 use App\Models\User;
+// use Gate;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -16,6 +19,21 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        // method 1
+        // if($user->id !== Auth::id()){
+        //         abort(403,"You are not autherized to access this page!");
+        //     }
+        // method 2
+        // abort_if($user->id !== Auth::id(),403,"You are not autherized to access this page!");
+        // method 3
+        // abort_unless($user->id === Auth::id(),403,"You are not autherized to access this page!");
+        // method 4
+        // abort_if(Auth::user()->cannot('edit_update_profile',$user),403,"You are not autherized to access this page!");
+        // method 5
+        // abort_if(!Gate::allows('edit_update_profile',$user),403,"You are not autherized to access this page!");
+        // abort_if(Gate::denies('edit_update_profile',$user),403,"You are not autherized to access this page!");
+        // Gate::authorize('edit_update_profile',$user);
+
         return view('user.edit', compact('user'));
     }
 

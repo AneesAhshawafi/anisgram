@@ -234,8 +234,7 @@ it('prevents non-owners from accessing the edit form', function () {
     $otherUser = User::factory()->create();
     $post = Post::factory()->create(['user_id' => $owner->id]);
     $response = $this->actingAs($otherUser)->get(route('edit_post', $post));
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['error' => 'You do not have the permission to edit this post']);
+    $response->assertForbidden();
 });
 /*
 |--------------------------------------------------------------------------
@@ -314,8 +313,7 @@ it('prevents non-owners from updating another user post', function () {
     $response = $this->actingAs($otherUser)->patch(route('update_post', $post), [
         'description' => 'Hacked description',
     ]);
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['error' => 'You do not have the permission to edit this post']);
+    $response->assertForbidden();
     $this->assertDatabaseHas('posts', [
         'id' => $post->id,
         'description' => 'Original description',
@@ -345,8 +343,7 @@ it('prevents non-owners from deleting another user post', function () {
     $otherUser = User::factory()->create();
     $post = Post::factory()->create(['user_id' => $owner->id]);
     $response = $this->actingAs($otherUser)->delete(route('delete_post', $post));
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['error' => 'You do not have the permission to delete this post']);
+    $response->assertForbidden();
     $this->assertDatabaseHas('posts', [
         'id' => $post->id,
     ]);
