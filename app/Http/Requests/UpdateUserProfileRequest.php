@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UpdateUserProfileRequest extends FormRequest
@@ -13,7 +15,13 @@ class UpdateUserProfileRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        // $user = User::find($this->route('user')->id);
+        // $user = $this->route('user');
+        // return Gate::allows('edit_update_profile',$user);
+        // $this->user : returns the user whose profile is being edited
+        // $this->user() : returns the current user who is loged in
+
+        return Gate::allows('edit_update_profile', $this->user);
     }
 
     /**

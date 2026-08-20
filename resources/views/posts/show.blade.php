@@ -28,7 +28,7 @@
                         <a href="/{{ $post->user->username }}"
                             class="font-bold text-white">{{ $post->user->username }}</a>
                     </div>
-                    @if ($post->user->id == auth()->id())
+                    @can('update', $post)
                         <div class=" text-yellow-300" title="{{ __('edit your post') }}">
                             <a href="/p/{{ $post->slug }}/edit">
 
@@ -46,7 +46,8 @@
                                     delete
                                 </span></button>
                         </form>
-                    @else
+                    @endcan
+                    @cannot('update', $post)
                         <div class="">
                             @if (auth()->user()->isPending($post->user))
                                 <a href="/{{ $post->user->username }}/unfollow"
@@ -59,7 +60,7 @@
                                     class="text-blue-500 pl-5">{{ __('Follow') }}</a>
                             @endif
                         </div>
-                    @endif
+                    @endcannot()
                 </div>
             </div>{{-- top --}}
             {{-- middle --}}

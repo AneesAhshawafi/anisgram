@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -77,9 +80,13 @@ class PostController extends Controller
      */
     public function edit(Request $request, Post $post)
     {
-        if ($post->user->id === auth()->id()) {
-            return view('posts.edit', compact('post'));
-        }
+        // if ($post->user->id === Auth::id()) {
+        //     return view('posts.edit', compact('post'));
+        // }
+        // authorization using policy
+        Gate::authorize('update', $post);
+
+        return view('posts.edit', compact('post'));
 
         return redirect()->back()->withErrors(['error' => 'You do not have the permission to edit this post']);
     }
@@ -89,33 +96,47 @@ class PostController extends Controller
      */
     public function update(PostRequest $request, Post $post)
     {
-        if ($post->user->id === auth()->id()) {
+        // if ($post->user->id === auth()->id()) {
 
-            $data = $request->validated();
-            if ($request->has('image')) {
-                $data['image'] = $request->file('image')->store('posts', 'public');
-            }
-            $post->update($data);
+        //     $data = $request->validated();
+        //     if ($request->has('image')) {
+        //         $data['image'] = $request->file('image')->store('posts', 'public');
+        //     }
+        //     $post->update($data);
 
-            return redirect('/p/'.$post->slug);
+        //     return redirect('/p/'.$post->slug);
+        // }
+
+        // return redirect()->back()->withErrors(['error' => 'You do not have the permission to edit this post']);
+        // authorization using policy
+        Gate::authorize('update', $post);
+        $data = $request->validated();
+        if ($request->has('image')) {
+            $data['image'] = $request->file('image')->store('posts', 'public');
         }
+        $post->update($data);
 
-        return redirect()->back()->withErrors(['error' => 'You do not have the permission to edit this post']);
+        return redirect('/p/'.$post->slug);
     }
 
     /**
      * Remove the specified post from storage.
      */
-    public function destroy(Request $request, Post $post)
+    public function destroy(Post $post)
     {
-        if ($post->user->id === auth()->id()) {
-            Storage::delete('public'.$post->slug);
-            $post->delete($post->id);
+        // if ($post->user->id === auth()->id()) {
+        //     Storage::delete('public'.$post->slug);
+        //     $post->delete($post->id);
 
-            return redirect(url('home'));
-        }
+        //     return redirect(url('home'));
+        // }
 
-        return redirect()->back()->withErrors(['error' => 'You do not have the permission to delete this post']);
+        // return redirect()->back()->withErrors(['error' => 'You do not have the permission to delete this post']);
+        Gate::authorize('delete', $post);
+        Storage::delete('public'.$post->slug);
+        $post->delete($post->id);
+
+        return redirect(url('home'));
     }
 
     public function explore()

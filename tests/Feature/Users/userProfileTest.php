@@ -15,12 +15,12 @@ uses(RefreshDatabase::class);
 |--------------------------------------------------------------------------
 */
 
-it('redirects guests away from user profile page', function () {
+it('allows guests to view user profile page', function () {
     $user = User::factory()->create();
 
     $response = $this->get(route('user_profile', $user));
 
-    $response->assertRedirect(route('login'));
+    $response->assertOk();
 });
 
 it('renders user profile page for authenticated users', function () {

@@ -1,3 +1,4 @@
+use Illuminate\Support\Facades\Route;
 <x-app-layout>
     @if (session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
@@ -53,24 +54,29 @@
             </div>
         </div>
         <div class="text-md h- col-span-3 col-start-1 order-2 md:col-start-2 md:order-4 md:my-10">
-
-            @if ($user->id === auth()->id())
-                <a href="/{{ $user->username }}/edit"
-                    class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">
-                    {{ __('Edit profile') }}
-                </a>
-            @else
-                @if (auth()->user()->isPending($user))
-                    <a href="/{{ $user->username }}/unfollow"
-                        class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Requested') }}</a>
-                @elseif (auth()->user()->isFollowing($user))
-                    <a href="/{{ $user->username }}/unfollow"
-                        class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Unfollow') }}</a>
+            @auth
+                @if ($user->id === auth()->id())
+                    <a href="/{{ $user->username }}/edit"
+                        class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">
+                        {{ __('Edit profile') }}
+                    </a>
                 @else
-                    <a href="/{{ $user->username }}/follow"
-                        class="w-full block bg-blue-500 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Follow') }}</a>
+                    @if (auth()->user()->isPending($user))
+                        <a href="/{{ $user->username }}/unfollow"
+                            class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Requested') }}</a>
+                    @elseif (auth()->user()->isFollowing($user))
+                        <a href="/{{ $user->username }}/unfollow"
+                            class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Unfollow') }}</a>
+                    @else
+                        <a href="/{{ $user->username }}/follow"
+                            class="w-full block bg-blue-500 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Follow') }}</a>
+                    @endif
                 @endif
-            @endif
+            @endauth
+            @guest
+                <a href="/{{ $user->username }}/follow"
+                    class="w-full block bg-blue-500 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">{{ __('Follow') }}</a>
+            @endguest
         </div>
 
 

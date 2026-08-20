@@ -13,6 +13,7 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 require __DIR__.'/auth.php';
+
 Route::middleware('auth')->group(function () {
     // profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -35,10 +36,13 @@ Route::middleware('auth')->group(function () {
     Route::post('p/{post:slug}/comment', [CommentController::class, 'store'])->name('store_comment');
 
     // user profile
-    Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');
+    // Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');
     Route::get('/{user:username}/edit', [UserController::class, 'edit'])->name('edit_user_profile');
     Route::patch('/{user:username}/update', [UserController::class, 'update'])->name('update_user_profile');
     // follow a user
     Route::get('/{user:username}/follow', [UserController::class, 'follow'])->name('follow_user');
     Route::get('/{user:username}/unfollow', [UserController::class, 'unfollow'])->name('unfollow_user');
 });
+
+// user profile
+Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');
