@@ -1,21 +1,18 @@
-use Illuminate\Support\Facades\Route;
-use App\Models\Comment;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 <?php
 
+use App\Events\PostLiked;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
 /*
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------
 | Guest Authorization Tests
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------
 */
 
 it('redirects unauthenticated users attempting to like a post to the login page', function () {
@@ -28,12 +25,12 @@ it('redirects unauthenticated users attempting to like a post to the login page'
 });
 
 /*
-|--------------------------------------------------------------------------
-| Toggle Like Actions & Database State Tests
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------
+| Toggle Like Actions & Database State Tests (Controller Routes)
+|---------------------------------------------------------------
 */
 
-it('allows an authenticated user to like a post', function () {
+it('allows an authenticated user to like a post via route', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create();
 
@@ -46,7 +43,7 @@ it('allows an authenticated user to like a post', function () {
     ]);
 });
 
-it('allows an authenticated user to un-like a post they have already liked', function () {
+it('allows an authenticated user to un-like a post they have already liked via route', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create();
 
@@ -67,7 +64,7 @@ it('allows an authenticated user to un-like a post they have already liked', fun
     ]);
 });
 
-it('toggles like state sequentially when triggered multiple times', function () {
+it('toggles like state sequentially when triggered multiple times via route', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create();
 
@@ -108,36 +105,133 @@ it('ensures likes from multiple users are tracked independently', function () {
 });
 
 /*
-|--------------------------------------------------------------------------
-| View & Blade Component Rendering Tests
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------
+| Livewire: posts.like Component Tests
+|---------------------------------------------------------------
 */
 
-it('renders post component without red fill icon when post is not liked by auth user', function () {
+it('renders livewire like component without red fill icon when unliked', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create();
 
-    $component = $this->actingAs($user)
-        ->blade('<x-post :post="$post" />', ['post' => $post]);
+    $this->actingAs($user);
 
-    $component->assertDontSee('fill text-red-500');
+    Livewire::test('posts.like', ['post' => $post])
+        ->assertOk()
+        ->assertDontSee('fill text-red-500');
 });
 
-it('renders post component with red fill icon when post is liked by auth user', function () {
+it('renders livewire like component with red fill icon when liked', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create();
     $user->likes()->attach($post->id);
 
-    $component = $this->actingAs($user)
-        ->blade('<x-post :post="$post" />', ['post' => $post]);
+    $this->actingAs($user);
 
-    $component->assertSee('fill text-red-500');
+    Livewire::test('posts.like', ['post' => $post])
+        ->assertOk()
+        ->assertSee('fill text-red-500');
+});
+
+it('toggles like, dispatches likeToggled, and broadcasts PostLiked event via livewire like component', function () {
+    Event::fake([PostLiked::class]);
+
+    $user = User::factory()->create();
+    $post = Post::factory()->create();
+
+    $this->actingAs($user);
+
+    // Call toggle_like to like the post
+    Livewire::test('posts.like', ['post' => $post])
+        ->call('toggle_like')
+        ->assertDispatched('likeToggled');
+
+    $this->assertDatabaseHas('likes', [
+        'user_id' => $user->id,
+        'post_id' => $post->id,
+    ]);
+
+    Event::assertDispatched(PostLiked::class, function (PostLiked $event) use ($post) {
+        return $event->postId === $post->id;
+    });
+
+    // Call toggle_like again to unlike the post
+    Livewire::test('posts.like', ['post' => $post])
+        ->call('toggle_like')
+        ->assertDispatched('likeToggled');
+
+    $this->assertDatabaseMissing('likes', ['user_id' => $user->id, 'post_id' => $post->id]);
 });
 
 /*
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------
+| Livewire: posts.likedby Component Tests
+||---------------------------------------------------------------
+*/
+
+it('renders livewire likedby component with empty state when post has zero likes', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create();
+
+    $this->actingAs($user);
+
+    Livewire::test('posts.likedby', ['post' => $post])
+        ->assertOk()
+        ->assertDontSee('Liked By')
+        ->assertDontSee('others');
+});
+
+it('renders livewire likedby component with username when post has 1 like', function () {
+    $user = User::factory()->create(['username' => 'alice']);
+    $post = Post::factory()->create();
+    $user->likes()->attach($post->id);
+
+    $this->actingAs($user);
+
+    Livewire::test('posts.likedby', ['post' => $post])
+        ->assertOk()
+        ->assertSee('Liked By')
+        ->assertSee('alice')
+        ->assertDontSee('others');
+});
+
+it('renders livewire likedby component with others text when post has multiple likes', function () {
+    $userA = User::factory()->create(['username' => 'alice']);
+    $userB = User::factory()->create(['username' => 'bob']);
+    $post = Post::factory()->create();
+
+    $userA->likes()->attach($post->id);
+    $userB->likes()->attach($post->id);
+
+    $this->actingAs($userA);
+
+    Livewire::test('posts.likedby', ['post' => $post])
+        ->assertOk()
+        ->assertSee('Liked By')
+        ->assertSee('others');
+});
+
+it('refreshes likes count on livewire likedby component when refreshLikes is triggered', function () {
+    $user = User::factory()->create(['username' => 'charlie']);
+    $post = Post::factory()->create();
+
+    $this->actingAs($user);
+
+    $test = Livewire::test('posts.likedby', ['post' => $post])
+        ->assertDontSee('charlie');
+
+    // Attach like in database
+    $user->likes()->attach($post->id);
+
+    // Trigger refreshLikes (via event listener)
+    $test->call('refreshLikes')
+        ->assertSee('charlie');
+});
+
+/*
+|---------------------------------------------------------------
 | Edge Cases & Route Binding Tests
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------
 */
 
 it('returns 404 when attempting to like a non-existent post slug', function () {

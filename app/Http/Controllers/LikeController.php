@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
@@ -11,7 +12,7 @@ class LikeController extends Controller
     {
         // auth()->user()->likes()->attach($post->id);
         // auth()->user()->likes()->detach($post->id);
-        auth()->user()->likes()->toggle($post->id);
+        Auth::user()->likes()->toggle($post);
 
         return back();
     }
