@@ -1,4 +1,5 @@
 <x-app-layout>
+
     <div class="flex flex-row max-w-full gap-8 mx-auto">
         {{-- left side --}}
         <div class="w-[30rem] mx-auto lg:w-[40rem]">
@@ -70,4 +71,9 @@
         </div>
 
     </div>
+    {{-- <div>
+
+        <livewire:counter />
+        @livewire('counter')
+    </div> --}}
 </x-app-layout>

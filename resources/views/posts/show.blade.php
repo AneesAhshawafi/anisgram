@@ -19,7 +19,7 @@
         {{-- right side --}}
         <div class="flex flex-col w-full bg-gray-800 md:w-5/12">
             {{-- top --}}
-            <div class="border-b-2">
+            <div class="border-b border-gray-500">
                 <div class="flex items-center p-5">
                     <img src="{{ $post->user->image }}" alt="{{ $post->user->username }}"
                         class="mr-5 h-10 w-10 rounded-full">
@@ -75,8 +75,8 @@
                     </div>
                 </div>
                 {{-- comments --}}
-                <h2 class="text-white pl-3">Comments</h2>
-                <div class=" border-t-2">
+                <div class=" border-t border-gray-500">
+                    {{-- <h2 class="text-white pl-3">Comments</h2> --}}
 
                     @foreach ($post->comments as $comment)
                         <div class="flex items-start px-5 py-2">
@@ -94,7 +94,19 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="border-t-2 p-5">
+                <div class="p-3 flex flex-row space-x-2 border-t border-gray-500">
+                    {{-- comments components  --}}
+                    {{-- <livewire:posts.commnets /> --}}
+                    {{-- like component --}}
+                    <livewire:posts.like :post="$post" />
+                    <a onClick="document.getElementById('comment_body').focus()" class="grow">
+                        <span class="material-symbols-outlined text-white hover:text-gray-400 cursor-pointer mr-3">
+                            comment
+                        </span>
+                    </a>
+                </div>
+                <livewire:posts.likedby :post="$post" />
+                <div class="border-t border-gray-500 p-5">
                     <form action="/p/{{ $post->slug }}/comment" method="POST">
                         @csrf
                         <div class="flex flex-row">
