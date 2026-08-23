@@ -1,3 +1,4 @@
+use Illuminate\Support\Facades\Route;
 <x-app-layout>
     @if (session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
