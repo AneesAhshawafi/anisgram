@@ -51,27 +51,16 @@
                                     </a>
                                     <div class="text-gray-400 text-sm">{{ $suggested_user->name }}</div>
                                 </div>
-                                <div class="">
-                                    @if (auth()->user()->isPending($suggested_user))
-                                        <a href="/{{ $suggested_user->username }}/unfollow"
-                                            class="text-gray-400 pl-5">{{ __('Requested') }}</a>
-                                    @elseif (auth()->user()->isFollowing($suggested_user))
-                                        <a href="/{{ $suggested_user->username }}/unfollow"
-                                            class="text-blue-500 pl-5">{{ __('Unfollow') }}</a>
-                                    @else
-                                        <a href="/{{ $suggested_user->username }}/follow"
-                                            class="text-blue-500 pl-5">{{ __('Follow') }}</a>
-                                    @endif
-                                </div>
+                                <livewire:posts.follow :user_id="$suggested_user->id" />
                             </div>
                         </li>
                     @endforeach
                 </ul>
             </div>
-        </div>
 
-    </div>
-    {{-- <div>
+
+        </div>
+        {{-- <div>
 
         <livewire:counter />
         @livewire('counter')

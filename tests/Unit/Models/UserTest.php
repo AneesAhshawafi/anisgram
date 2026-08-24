@@ -3,6 +3,7 @@
 use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -89,4 +90,88 @@ it('verified factory state sets email_verified_at to a non-null value', function
     $user = User::factory()->create();
 
     expect($user->email_verified_at)->not->toBeNull();
+});
+
+/**
+ * Tests that the User model defines a BelongsToMany relationship named 'following'.
+ */
+it('has a following belongsToMany relationship', function () {
+    $user = User::factory()->create();
+
+    expect($user->following())->toBeInstanceOf(BelongsToMany::class);
+});
+
+/**
+ * Tests that the User model defines a BelongsToMany relationship named 'followers'.
+ */
+it('has a followers belongsToMany relationship', function () {
+    $user = User::factory()->create();
+
+    expect($user->followers())->toBeInstanceOf(BelongsToMany::class);
+});
+
+/**
+ * Tests that the User model defines a BelongsToMany relationship named 'likes'.
+ */
+it('has a likes belongsToMany relationship', function () {
+    $user = User::factory()->create();
+
+    expect($user->likes())->toBeInstanceOf(BelongsToMany::class);
+});
+
+/**
+ * Tests following a public user automatically confirms the follow.
+ */
+it('allows a user to follow a public account with confirmed status', function () {
+    $user = User::factory()->create();
+    $targetUser = User::factory()->create(['private_account' => false]);
+
+    $user->follow($targetUser);
+
+    expect($user->isFollowing($targetUser))->toBeTrue();
+    expect($user->isPending($targetUser))->toBeFalse();
+    expect($targetUser->isFollower($user))->toBeTrue();
+});
+
+/**
+ * Tests following a private user creates an unconfirmed pending follow request.
+ */
+it('allows a user to follow a private account as pending', function () {
+    $user = User::factory()->create();
+    $targetUser = User::factory()->create(['private_account' => true]);
+
+    $user->follow($targetUser);
+
+    expect($user->isPending($targetUser))->toBeTrue();
+    expect($user->isFollowing($targetUser))->toBeFalse();
+});
+
+/**
+ * Tests that unfollow removes the relationship.
+ */
+it('allows a user to unfollow another user', function () {
+    $user = User::factory()->create();
+    $targetUser = User::factory()->create(['private_account' => false]);
+
+    $user->follow($targetUser);
+    expect($user->isFollowing($targetUser))->toBeTrue();
+
+    $user->unfollow($targetUser);
+    expect($user->isFollowing($targetUser))->toBeFalse();
+});
+
+/**
+ * Tests toggle_follow attaches and confirms on public accounts.
+ */
+it('toggles follow status on public account', function () {
+    $user = User::factory()->create();
+    $targetUser = User::factory()->create(['private_account' => false]);
+
+    // 1st toggle -> follow
+    $user->toggle_follow($targetUser);
+    expect($user->isFollowing($targetUser))->toBeTrue();
+
+    // 2nd toggle -> unfollow
+    $user->toggle_follow($targetUser);
+    expect($user->isFollowing($targetUser))->toBeFalse();
 });
