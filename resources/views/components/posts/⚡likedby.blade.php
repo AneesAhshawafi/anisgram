@@ -29,14 +29,14 @@ new class extends Component {
 ?>
 
 <div class="px-5 mb-4 text-gray-400">
-    @if ($this->likes() > 0)
+    @if ($this->likes > 0)
         {{ __('Liked By ') }}
         <strong>
             <a href="/{{ $this->firstUsername }}">{{ $this->firstUsername }}</a>
         </strong>
     @endif
 
-    @if ($this->likes() > 1)
+    @if ($this->likes > 1)
         {{ __('and ') }} <strong>{{ __('others') }}</strong>
     @endif
 </div>

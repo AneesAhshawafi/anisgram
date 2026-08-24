@@ -27,6 +27,15 @@
     .post-comment-btn {
         @apply ml-3 border-none text-blue-500;
     }
+
+    .unfollow-btn-profile {
+        @apply w-44 border text-lg py-3 px-10 font-bold rounded-md border-neutral-300 text-center;
+    }
+
+    .follow-btn-profile {
+        @apply w-full block bg-blue-500 border text-lg py-3 px-10 font-bold rounded-md border-neutral-300 text-center;
+    }
+
 }
 
 .material-symbols-outlined.fill,
