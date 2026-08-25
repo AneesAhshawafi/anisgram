@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => 'd2d3adde2890f07d6a667dbdeac7ce5eb2591c40',
+        'reference' => '3c3d270071e8715e6284d41232b56f4e7617fda5',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -523,7 +523,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => 'd2d3adde2890f07d6a667dbdeac7ce5eb2591c40',
+            'reference' => '3c3d270071e8715e6284d41232b56f4e7617fda5',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1311,6 +1311,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'spatie/laravel-package-tools' => array(
+            'pretty_version' => '1.93.1',
+            'version' => '1.93.1.0',
+            'reference' => 'd5552849801f2642aea710557463234b59ef65eb',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/laravel-package-tools',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'spatie/once' => array(
             'dev_requirement' => false,
             'replaced' => array(
@@ -1670,6 +1679,15 @@
             'install_path' => __DIR__ . '/../webmozart/assert',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'wire-elements/modal' => array(
+            'pretty_version' => '3.0.4',
+            'version' => '3.0.4.0',
+            'reference' => '3c17ed4e5d1506773db37dbbfdcacff12b037317',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../wire-elements/modal',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
     ),
 );
