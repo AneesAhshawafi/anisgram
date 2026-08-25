@@ -73,7 +73,7 @@ it('allows an authenticated user to unfollow a user via route', function () {
 
 /*
 |-------------------------------------------------------------------------
-| Livewire: posts.follow Component Rendering Tests
+| Livewire: posts.follow-button Component Rendering Tests
 |-------------------------------------------------------------------------
 */
 
@@ -83,7 +83,7 @@ it('renders livewire follow component with Follow state when not following', fun
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertOk()
         ->assertSee('Follow')
         ->assertDontSee('Unfollow')
@@ -91,14 +91,14 @@ it('renders livewire follow component with Follow state when not following', fun
         ->assertSee('text-white');
 });
 
-it('renders livewirk follow component with Unfollow state when following confirmed user', function () {
+it('renders livewire follow component with Unfollow state when following confirmed user', function () {
     $user = User::factory()->create();
     $targetUser = User::factory()->create();
     $user->follow($targetUser);
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertOk()
         ->assertSee('Unfollow')
         ->assertDontSee('Follow')
@@ -113,7 +113,7 @@ it('renders livewire follow component with Requested state and muted text when f
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertOk()
         ->assertSee('Requested')
         ->assertDontSee('Unfollow')
@@ -126,7 +126,7 @@ it('applies custom button classes dynamically when classes property is provided'
 
     $this->actingAs($user);
 
-    $component = Livewire::test('posts.follow', [
+    $component = Livewire::test('posts.follow-button', [
         'user_id' => $targetUser->id,
         'classes' => 'profile-button',
     ])
@@ -139,7 +139,7 @@ it('applies custom button classes dynamically when classes property is provided'
 
 /*
 |-------------------------------------------------------------------------
-| Livewire: posts.follow Toggle Action & Instant UI Update Tests
+| Livewire: posts.follow-button Toggle Action & Instant UI Update Tests
 |-------------------------------------------------------------------------
 */
 
@@ -149,7 +149,7 @@ it('immediately updates UI from Follow to Unfollow on first click for public acc
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertSee('Follow')
         ->call('toggle')
         ->assertSee('Unfollow')
@@ -165,7 +165,7 @@ it('immediately updates UI from Unfollow to Follow when unfollowing', function (
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertSee('Unfollow')
         ->call('toggle')
         ->assertSee('Follow')
@@ -179,7 +179,7 @@ it('immediately updates UI from Follow to Requested on first click for private a
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertSee('Follow')
         ->call('toggle')
         ->assertSee('Requested')
@@ -196,7 +196,7 @@ it('cancels pending follow request and immediately updates UI to Follow', functi
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => $targetUser->id])
+    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertSee('Requested')
         ->call('toggle')
         ->assertSee('Follow')
@@ -210,7 +210,7 @@ it('handles non-existent target user gracefully without throwing errors', functi
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow', ['user_id' => 99999])
+    Livewire::test('posts.follow-button', ['user_id' => 99999])
         ->assertOk()
         ->assertSee('Follow')
         ->call('toggle')

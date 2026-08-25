@@ -1,4 +1,3 @@
-use Illuminate\Support\Facades\Route;
 <x-app-layout>
     @if (session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
@@ -33,16 +32,13 @@ use Illuminate\Support\Facades\Route;
                     </li>
                     <li class="flex flex-col md:flex-row text-center items-center">
                         <div class="md:mr-1 font-bold md:font-normal p-2">
-                            {{ $user->followers->count() }}
+                            {{ $user->followers()->wherePivot('confirmed', true)->count() }}
                         </div>
-                        <span class="text-neutral-500 ">{{ __('followers') }}</span>
+                        <button
+                            onclick="Livewire.dispatch('openModal', { component: 'users.followers-modal', arguments: { userId: {{ $user->id }} } })"
+                            class="text-neutral-500 ">{{ __('followers') }}</button>
                     </li>
-                    <li class="flex flex-col md:flex-row text-center items-center">
-                        <div class="md:mr-1 font-bold md:font-normal p-2">
-                            {{ $user->following->count() }}
-                        </div>
-                        <span class="text-neutral-500 ">{{ __('following') }}</span>
-                    </li>
+                    <livewire:users.following :user_id="$user->id" />
                 </ul>
             </div>
             {{-- User Info --}}
@@ -61,23 +57,13 @@ use Illuminate\Support\Facades\Route;
                         {{ __('Edit profile') }}
                     </a>
                 @else
-                    <livewire:posts.follow :user_id="$user->id" classes="profile" />
-                    {{-- @if (auth()->user()->isPending($user))
-                        <a href="/{{ $user->username }}/unfollow" class="unfollow-btn-profile">{{ __('Requested') }}</a>
-                    @elseif (auth()->user()->isFollowing($user))
-                        <a href="/{{ $user->username }}/unfollow" class="unfollow-btn-profile">{{ __('Unfollow') }}</a>
-                    @else
-                        <a href="/{{ $user->username }}/follow" class="follow-btn-profile">{{ __('Follow') }}</a>
-                    @endif --}}
+                    <livewire:posts.follow-button :user_id="$user->id" classes="profile" />
                 @endif
             @endauth
             @guest
                 <a href="/{{ $user->username }}/follow" class="follow-btn-profile">{{ __('Follow') }}</a>
             @endguest
         </div>
-
-
-
     </div>
     {{-- Bottom --}}
     <div class=" border-t-[1px] border-gray-400 pt-2 mt-10">

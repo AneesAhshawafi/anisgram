@@ -51,7 +51,7 @@
                                     </a>
                                     <div class="text-gray-400 text-sm">{{ $suggested_user->name }}</div>
                                 </div>
-                                <livewire:posts.follow :user_id="$suggested_user->id" />
+                                <livewire:posts.follow-button :user_id="$suggested_user->id" />
                             </div>
                         </li>
                     @endforeach
