@@ -62,6 +62,7 @@ new class extends Component {
         } else {
             Auth::user()->toggle_follow($this->targetUser);
         }
+        $this->dispatch('toggle_follow');
 
         // Invalidate computed property cache so the view re-evaluates against the updated DB:
         unset($this->isPending, $this->isFollowing, $this->followState, $this->buttonClasses);

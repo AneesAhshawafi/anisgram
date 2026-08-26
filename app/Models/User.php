@@ -83,6 +83,21 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'follows', 'following_user_id', 'user_id')->withTimestamps()->withPivot('confirmed'); // this will return the users the thier ids matching with the user_id column in the follows table (who are considered as the followers of this user)
     }
 
+    public function pending_followers()
+    {
+        return $this->followers()->wherePivot('confirmed', false);
+    }
+
+    public function delete_following_request(User $pending_follower)
+    {
+        return $this->followers()->detach($pending_follower);
+    }
+
+    public function confirm_following_request(User $pending_follower)
+    {
+        return $this->followers()->updateExistingPivot($pending_follower, ['confirmed' => true]);
+    }
+
     public function toggle_follow(User $user)
     {
         $this->following()->toggle($user);

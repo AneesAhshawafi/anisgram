@@ -1,7 +1,10 @@
 <div class="card">
     <div class="card-header">
-        <img src="{{ $post->user->image }}" class="w-9 h-9 mr-3 rounded-full" />
-        <a href="/{{ $post->user->username }}" class="font-bold">{{ $post->user->username }}</a>
+        <div class="flex flex-row items-center grow">
+            <img src="{{ $post->user->image }}" class="w-9 h-9 mr-3 rounded-full" />
+            <a href="/{{ $post->user->username }}" class="font-bold">{{ $post->user->username }}</a>
+        </div>
+        <livewire:posts.follow-button :user_id="$post->user->id" />
     </div>
 
     <div class="card-body">

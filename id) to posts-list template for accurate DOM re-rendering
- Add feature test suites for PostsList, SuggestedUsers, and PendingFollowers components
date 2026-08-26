@@ -1,0 +1,18 @@
+[develop 246236ba] fix(feed, modals): order feed by last followed user and add tests
+ 30 files changed, 750 insertions(+), 68 deletions(-)
+ create mode 100644 app/Livewire/Posts/Post.php
+ create mode 100644 app/Livewire/Posts/PostsList.php
+ create mode 100644 app/Livewire/Users/FollowerModal.php
+ create mode 100644 app/Livewire/Users/PendingFollowersCount.php
+ create mode 100644 app/Livewire/Users/PendingFollowersList.php
+ create mode 100644 app/Livewire/Users/SuggestedUsers.php
+ create mode 100644 app/Policies/UserPolicy.php
+ rename resources/views/{components => livewire/posts}/post.blade.php (87%)
+ create mode 100644 resources/views/livewire/posts/posts-list.blade.php
+ create mode 100644 resources/views/livewire/users/follower-modal.blade.php
+ create mode 100644 resources/views/livewire/users/pending-followers-count.blade.php
+ create mode 100644 resources/views/livewire/users/pending-followers-list.blade.php
+ create mode 100644 resources/views/livewire/users/suggested-users.blade.php
+ create mode 100644 tests/Feature/Posts/postsListTest.php
+ create mode 100644 tests/Feature/Users/pendingFollowersTest.php
+ create mode 100644 tests/Feature/Users/suggestedUsersTest.php
