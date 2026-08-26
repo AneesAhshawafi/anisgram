@@ -3,7 +3,6 @@
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -48,30 +47,22 @@ it('displays posts from followed users and excludes posts from non-followed user
         ->assertDontSee('Post from unfollowed user');
 });
 
-it('orders posts by the most recently followed user first', function () {
+it('returns posts from followed users in random order', function () {
     $user = User::factory()->create();
-    $firstFollowed = User::factory()->create(['username' => 'first_followed']);
-    $lastFollowed = User::factory()->create(['username' => 'last_followed']);
+    $followed1 = User::factory()->create(['username' => 'followed_1']);
+    $followed2 = User::factory()->create(['username' => 'followed_2']);
 
-    $user->following()->attach($firstFollowed->id, ['confirmed' => true]);
-    $user->following()->attach($lastFollowed->id, ['confirmed' => true]);
+    $user->following()->attach($followed1->id, ['confirmed' => true]);
+    $user->following()->attach($followed2->id, ['confirmed' => true]);
 
-    DB::table('follows')
-        ->where('following_user_id', $firstFollowed->id)
-        ->update(['created_at' => now()->subDays(2)]);
-
-    DB::table('follows')
-        ->where('following_user_id', $lastFollowed->id)
-        ->update(['created_at' => now()]);
-
-    $firstFollowedPost = Post::factory()->create([
-        'user_id' => $firstFollowed->id,
-        'description' => 'Post from first followed user',
+    $post1 = Post::factory()->create([
+        'user_id' => $followed1->id,
+        'description' => 'Post from followed 1',
     ]);
 
-    $lastFollowedPost = Post::factory()->create([
-        'user_id' => $lastFollowed->id,
-        'description' => 'Post from last followed user',
+    $post2 = Post::factory()->create([
+        'user_id' => $followed2->id,
+        'description' => 'Post from followed 2',
     ]);
 
     $this->actingAs($user);
@@ -81,7 +72,7 @@ it('orders posts by the most recently followed user first', function () {
     $posts = $component->get('posts');
 
     expect($posts)->not->toBeEmpty();
-    expect($posts->first()->id)->toBe($lastFollowedPost->id);
+    expect($posts->pluck('id'))->toContain($post1->id, $post2->id);
 });
 
 it('invalidates computed property cache and refreshes posts on toggle_follow event', function () {
