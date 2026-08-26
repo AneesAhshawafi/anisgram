@@ -35,7 +35,7 @@
                             {{ $user->followers()->wherePivot('confirmed', true)->count() }}
                         </div>
                         <button
-                            onclick="Livewire.dispatch('openModal', { component: 'users.followers-modal', arguments: { userId: {{ $user->id }} } })"
+                            onclick="Livewire.dispatch('openModal', { component: 'users.follower-modal', arguments: { user_id: {{ $user->id }} } })"
                             class="text-neutral-500 ">{{ __('followers') }}</button>
                     </li>
                     <livewire:users.following :user_id="$user->id" />
@@ -53,7 +53,7 @@
             @auth
                 @if ($user->id === auth()->id())
                     <a href="/{{ $user->username }}/edit"
-                        class="w-44 border text-lg py-3 px-10 font-bold py-1 rounded-md border-neutral-300 text-center">
+                        class="w-44 border text-lg py-3 px-10 font-bold rounded-md border-neutral-300 text-center">
                         {{ __('Edit profile') }}
                     </a>
                 @else

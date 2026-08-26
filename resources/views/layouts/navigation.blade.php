@@ -1,3 +1,4 @@
+use App\Models\User;
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,11 +12,11 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                {{-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         {{ __('Home') }}
                     </x-nav-link>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Settings Dropdown -->
@@ -35,22 +36,42 @@
                         <div class="space-x-3 text-[1.5rem] mr-2 leading-5">
                             <a href="{{ route('home') }}" title="{{ __('home page') }}">
                                 {!! url()->current() == route('home')
-                                    ? '<span class="material-symbols-outlined text-white">home</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400">home</span>' !!}
+                                    ? '<span class="material-symbols-outlined text-white ">home</span>'
+                                    : '<span class="material-symbols-outlined text-gray-400 ">home</span>' !!}
                             </a>
                             <a href="{{ route('create_post') }}" title="{{ __('Create new post') }}">
                                 {!! url()->current() == route('create_post')
-                                    ? '<span class="material-symbols-outlined text-white">add</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400">add</span>' !!}
+                                    ? '<span class="material-symbols-outlined text-white ">add</span>'
+                                    : '<span class="material-symbols-outlined text-gray-400 ">add</span>' !!}
                             </a>
                             <a href="{{ route('explore') }}" title="{{ __('Explore') }}">
                                 {!! url()->current() == route('explore')
-                                    ? '<span class="material-symbols-outlined text-white">search</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400">search</span>' !!}
+                                    ? '<span class="material-symbols-outlined text-white ">search</span>'
+                                    : '<span class="material-symbols-outlined text-gray-400 ">search</span>' !!}
                             </a>
+
+                            {{-- <button onclick="Livewire.dispatch('openModal', { component: 'users.pending-followers-list' })"
+                                class="text-neutral-500 "><span
+                                    class="material-symbols-outlined text-gray-400">person_add</span></button> --}}
                         </div>
                     </div>
 
+                    <div class="hidden md:flex md:items-center ">
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button class="  ml-3 pb-2 mr-6  leading-5 " title="{{ __('Follow Requests') }}">
+                                    <div class="relative inline-flex items-center justify-center">
+                                        <livewire:users.pending-followers-count />
+                                        <span class="material-symbols-outlined text-gray-400">person_add</span>
+                                    </div>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <livewire:users.pending-followers-list />
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                     <div class="hidden md:block">
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">

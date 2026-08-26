@@ -6,27 +6,21 @@
         </button>
     </div>
     <ul class="overflow-y-auto p-3">
-        @forelse ($this->following as $following)
+        @forelse ($this->followers as $follower)
             <li class="mt-3">
                 <div class="flex flex-row text-sm">
                     <div class="mr-5">
 
-                        <a href="/{{ $following->username }}">
-                            <img src="{{ $following->image }}" alt="{{ $following->username }}"
+                        <a href="/{{ $follower->username }}">
+                            <img src="{{ $follower->image }}" alt="{{ $follower->username }}"
                                 class="border border-gray-700 rounded-full  h-12 w-12 aspect-square object-cover">
                         </a>
                     </div>
                     <div class="flex flex-col grow">
-                        <a href="/{{ $following->username }}" class="font-bold text-gray-700">{{ $following->username }}
+                        <a href="/{{ $follower->username }}" class="font-bold text-gray-700">{{ $follower->username }}
                         </a>
-                        <div class="text-gray-500 text-sm">{{ $following->name }}</div>
+                        <div class="text-gray-500 text-sm">{{ $follower->name }}</div>
                     </div>
-                    @can('update', $this->targetUser)
-                        <div>
-                            <button wire:click="unfollow({{ $following->id }})"
-                                class="border border-gray-500 px-2 py-1 rounded">{{ __('Unfollow') }}</button>
-                        </div>
-                    @endcan
                 </div>
             </li>
         @empty

@@ -32,7 +32,8 @@ class UserController extends Controller
         // method 5
         // abort_if(!Gate::allows('edit_update_profile',$user),403,"You are not autherized to access this page!");
         // abort_if(Gate::denies('edit_update_profile',$user),403,"You are not autherized to access this page!");
-        // Gate::authorize('edit_update_profile',$user);
+        // Gate::authorize('edit_update_profile', $user);
+        Gate::authorize('update', $user);
 
         return view('user.edit', compact('user'));
     }
