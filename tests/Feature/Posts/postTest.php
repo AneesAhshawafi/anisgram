@@ -1,9 +1,3 @@
-use App\Models\Comment;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 <?php
 
 use App\Models\Comment;
@@ -333,7 +327,7 @@ it('allows post owner to delete their post', function () {
     $owner = User::factory()->create();
     $post = Post::factory()->create(['user_id' => $owner->id]);
     $response = $this->actingAs($owner)->delete(route('delete_post', $post));
-    $response->assertRedirect(url('home'));
+    $response->assertRedirect(url('/'));
     $this->assertDatabaseMissing('posts', [
         'id' => $post->id,
     ]);

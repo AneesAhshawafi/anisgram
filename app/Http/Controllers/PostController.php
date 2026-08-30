@@ -136,7 +136,7 @@ class PostController extends Controller
         Storage::delete('public'.$post->slug);
         $post->delete($post->id);
 
-        return redirect(url('home'));
+        return redirect(url('/'));
     }
 
     public function explore()

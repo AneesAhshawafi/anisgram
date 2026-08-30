@@ -1,6 +1,6 @@
 <div class="h-[40rem]  flex flex-col justify-center">
 
-    <div class="w-5xl h-[3rem] flex items-center  border-b-2 border-b-neutral-200 p-2">
+    <div class=" h-[3rem] flex items-center  border-b-2 border-b-neutral-200 p-2">
         <h1 class="text-lg text-center grow">{{ __('Create New Post') }}</h1>
 
         @if ($image)
@@ -9,7 +9,7 @@
     </div>
 
     @if ($image)
-        <div class="h-[37rem]">
+        <div class="h-[37rem] w-full">
             <img class="object-cover" src="{{ $image->temporaryUrl() }}">
         </div>
     @endif

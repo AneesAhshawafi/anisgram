@@ -13,8 +13,13 @@ class CreatePostModal extends ModalComponent
 
     public function save_temp()
     {
-        $image = $this->image->store('temp', 'public');
-        $this->dispatch('openModal', 'posts.filters-modal', ['image' => $image]);
+        // $path = $request->file('image')->store('users', 'public');
+        // $data['image'] = '/storage/' . $path;
+        // $path = $this->image->store('temp', 'public');
+        // $image = '/storage/' . $path;
+        // $this->dispatch('openModal', 'posts.filters-modal', ['image' => $image]);
+        $path = $this->image->store('temp', 'public'); // e.g. 'temp/abc.jpg'
+        $this->dispatch('openModal', 'posts.filters-modal', ['image' => $path]);
     }
 
     public function render()
