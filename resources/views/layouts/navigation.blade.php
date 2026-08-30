@@ -39,11 +39,14 @@ use App\Models\User;
                                     ? '<span class="material-symbols-outlined text-white ">home</span>'
                                     : '<span class="material-symbols-outlined text-gray-400 ">home</span>' !!}
                             </a>
-                            <a href="{{ route('create_post') }}" title="{{ __('Create new post') }}">
+                            {{-- <a href="{{ route('create_post') }}" title="{{ __('Create new post') }}">
                                 {!! url()->current() == route('create_post')
                                     ? '<span class="material-symbols-outlined text-white ">add</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400 ">add</span>' !!}
+                                    : '<span class="material-symbols-outlined text-gray-400 ">add</span>' !!} --}}
                             </a>
+                            <button onclick="Livewire.dispatch('openModal', { component: 'posts.create-post-modal'})">
+                                <span class="material-symbols-outlined text-gray-400 ">add</span>
+                            </button>
                             <a href="{{ route('explore') }}" title="{{ __('Explore') }}">
                                 {!! url()->current() == route('explore')
                                     ? '<span class="material-symbols-outlined text-white ">search</span>'
@@ -136,7 +139,14 @@ use App\Models\User;
         <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
             <div class="pt-2 pb-3 space-y-1">
                 <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
-                    {{ __('home') }}
+                    {{ __('Home') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('explore')" :active="request()->routeIs('explore')">
+                    {{ __('Explore') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link class="cursor-pointer"
+                    onClick="Livewire.dispatch('openModal',{component:'posts.create-post-modal'})">
+                    {{ __('Create New Post') }}
                 </x-responsive-nav-link>
             </div>
 

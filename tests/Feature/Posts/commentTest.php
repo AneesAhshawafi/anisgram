@@ -1,8 +1,4 @@
-use Illuminate\Support\Facades\Storage;
-use App\Models\Comment;
 <?php
-
-// use Tests\TestCase;
 
 use App\Models\Post;
 use App\Models\User;
