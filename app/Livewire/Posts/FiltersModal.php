@@ -54,7 +54,9 @@ class FiltersModal extends ModalComponent
         $relativePath = $this->normalizeRelativePath($image);
         $this->filtered_image = asset('storage/'.$relativePath);
 
-        $this->add_temp_image($relativePath);
+        if (str_starts_with($relativePath, 'temp/')) {
+            $this->add_temp_image($relativePath);
+        }
     }
 
     #[On('add_temp_image')]
@@ -135,7 +137,7 @@ class FiltersModal extends ModalComponent
         Storage::disk('public')->move($sourceRelativePath, $post_image);
 
         foreach ($this->temp_images as $tempImg) {
-            if ($tempImg !== $sourceRelativePath && Storage::disk('public')->exists($tempImg)) {
+            if (str_starts_with($tempImg, 'temp/') && $tempImg !== $sourceRelativePath && Storage::disk('public')->exists($tempImg)) {
                 Storage::disk('public')->delete($tempImg);
             }
         }
@@ -161,7 +163,7 @@ class FiltersModal extends ModalComponent
     public function delete_temp_images()
     {
         foreach ($this->temp_images as $tempImg) {
-            if (Storage::disk('public')->exists($tempImg)) {
+            if (str_starts_with($tempImg, 'temp/') && Storage::disk('public')->exists($tempImg)) {
                 Storage::disk('public')->delete($tempImg);
             }
         }

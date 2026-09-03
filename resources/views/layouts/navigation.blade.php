@@ -1,4 +1,3 @@
-use App\Models\User;
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,6 +18,9 @@ use App\Models\User;
                 </div> --}}
             </div>
 
+            <div class="hidden sm:flex sm:items-center">
+                <livewire:posts.search />
+            </div>
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @guest
