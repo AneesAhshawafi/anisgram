@@ -23,9 +23,9 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    // Clean up test files in public disk
     Storage::disk('public')->deleteDirectory('temp');
-    Storage::disk('public')->deleteDirectory('posts');
+    // Do NOT delete the entire posts directory:
+    // Storage::disk('public')->deleteDirectory('posts');
 });
 
 /**
@@ -232,4 +232,19 @@ it('cleans up all temp images when modalClosed event is received', function () {
     foreach ($tempImages as $img) {
         expect(Storage::disk('public')->exists($img))->toBeFalse();
     }
+});
+
+it('does not add or delete non-temp images residing in posts directory', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $postImage = createTestImage('posts/existing_post_img.jpg');
+
+    $component = Livewire::test('posts.filters-modal', ['image' => $postImage]);
+
+    expect($component->get('temp_images'))->toBeEmpty();
+
+    $component->dispatch('modalClosed');
+
+    expect(Storage::disk('public')->exists('posts/existing_post_img.jpg'))->toBeTrue();
 });
