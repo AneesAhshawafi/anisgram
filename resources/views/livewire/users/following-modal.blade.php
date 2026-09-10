@@ -9,15 +9,16 @@
         @forelse ($this->following as $following)
             <li class="mt-3">
                 <div class="flex flex-row text-sm">
-                    <div class="mr-5">
+                    <div class="rtl:ml-4 ltr:mr-4">
 
                         <a href="/{{ $following->username }}">
                             <img src="{{ $following->image }}" alt="{{ $following->username }}"
                                 class="border border-gray-700 rounded-full  h-12 w-12 aspect-square object-cover">
                         </a>
                     </div>
-                    <div class="flex flex-col grow">
-                        <a href="/{{ $following->username }}" class="font-bold text-gray-700">{{ $following->username }}
+                    <div class="flex flex-col ltr:items-end rtl:items-start  grow">
+                        <a href="/{{ $following->username }}"
+                            class="rtl:text-algin-start font-bold text-gray-700">{{ $following->username }}
                         </a>
                         <div class="text-gray-500 text-sm">{{ $following->name }}</div>
                     </div>

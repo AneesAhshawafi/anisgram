@@ -1,6 +1,6 @@
 <div>
     <li class="flex flex-col md:flex-row text-center items-center">
-        <div class="md:mr-1 font-bold md:font-normal p-2">
+        <div class="rtl:md:ml-1 ltr:md:mr-1 font-bold md:font-normal p-2">
             {{ $this->count }}
 
         </div>

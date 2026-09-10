@@ -14,6 +14,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                body: ["IBM Plex Sans Arabic", "sans-serif"]
             },
         },
     },

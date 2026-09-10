@@ -9,7 +9,7 @@
         @forelse ($this->followers as $follower)
             <li class="mt-3">
                 <div class="flex flex-row text-sm">
-                    <div class="mr-5">
+                    <div class="rtl:ml-5 ltr:mr-5">
 
                         <a href="/{{ $follower->username }}">
                             <img src="{{ $follower->image }}" alt="{{ $follower->username }}"

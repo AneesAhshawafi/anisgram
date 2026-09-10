@@ -17,7 +17,7 @@ it('renders following modal component successfully', function () {
 
     Livewire::test('users.following-modal', ['user_id' => $user->id])
         ->assertOk()
-        ->assertSee('Following');
+        ->assertSee(__('Following'));
 });
 
 it('displays empty state when user is not following anyone', function () {
@@ -25,7 +25,7 @@ it('displays empty state when user is not following anyone', function () {
 
     Livewire::test('users.following-modal', ['user_id' => $user->id])
         ->assertOk()
-        ->assertSee('You are not following anyone.');
+        ->assertSee(__('You are not following anyone.'));
 });
 
 it('displays list of confirmed followed users in the modal', function () {
@@ -42,7 +42,7 @@ it('displays list of confirmed followed users in the modal', function () {
         ->assertSee('First Followed')
         ->assertSee('followed_two')
         ->assertSee('Second Followed')
-        ->assertDontSee('You are not following anyone.');
+        ->assertDontSee(__('You are not following anyone.'));
 });
 
 it('only shows confirmed followings and hides pending follow requests', function () {

@@ -6,7 +6,7 @@
          @foreach ($this->suggested_users as $suggested_user)
              <li class="mt-3">
                  <div class="flex flex-row text-sm">
-                     <div class="mr-5">
+                     <div class="rtl:ml-5 ltr:mr-5">
 
                          <a href="/{{ $suggested_user->username }}">
                              <img src="{{ $suggested_user->image }}" alt="{{ $suggested_user->username }}"

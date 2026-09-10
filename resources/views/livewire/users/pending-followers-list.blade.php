@@ -4,7 +4,7 @@
         @forelse ($this->pending_followers as $pending_follower)
             <li class="mt-1">
                 <div class="flex flex-row items-center text-sm">
-                    <div class="mr-5">
+                    <div class="rtl:ml-5 ltr:mr-5">
 
                         <a href="/{{ $pending_follower->username }}">
                             <img src="{{ $pending_follower->image }}" alt="{{ $pending_follower->username }}"
@@ -17,7 +17,7 @@
                         </a>
                         <div class="text-gray-500 text-sm">{{ $pending_follower->name }}</div>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
                         <button wire:click="confirm({{ $pending_follower->id }})"
                             class="bg-blue-600 hover:bg-gray-700 text-white font-semibold px-2 py-1 rounded-md text-xs transition">
                             {{ __('Confirm') }}

@@ -1,7 +1,7 @@
 <x-app-layout>
     @if (session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
-            class="w-50 p-4 text-sm text-green-700 bg-green-100 rounded-lg absolute right-10 shadow shadow-neutral-200"
+            class="w-50 p-4 text-sm text-green-700 bg-green-100 rounded-lg absolute rtl:left-10 ltr:right-10 shadow shadow-neutral-200"
             role="alert">
             <span class="font-medium">{{ session('success') }}</span>
         </div>
@@ -23,15 +23,15 @@
             <p class="font-bold">{{ $user->name }}</p>
             {{-- User statistics  --}}
             <div class="col-span-3   text-md border-y border-y-neutral-200 order-2 md:order-3 md:border-none">
-                <ul class="text-md flex flex-row justify-around md:justify-start md:space-x-4 ">
+                <ul class="text-md flex flex-row justify-around md:justify-start md:space-x-4 rtl:space-x-reverse">
                     <li class="flex flex-col md:flex-row text-center items-center">
-                        <div class="md:mr-1 font-bold md:font-normal">
+                        <div class="rtl:md:ml-1 ltr:md:mr-1 font-bold md:font-normal">
                             {{ $user->posts->count() }}
                         </div>
                         <span class="text-neutral-500 ">{{ __('posts') }}</span>
                     </li>
                     <li class="flex flex-col md:flex-row text-center items-center">
-                        <div class="md:mr-1 font-bold md:font-normal p-2">
+                        <div class="rtl:md:ml-1 ltr:md:mr-1 font-bold md:font-normal p-2">
                             {{ $user->followers()->wherePivot('confirmed', true)->count() }}
                         </div>
                         <button

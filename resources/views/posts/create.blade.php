@@ -6,7 +6,7 @@
         <div class="flex flex-col justify-center items-center w-full ">
             @if ($errors->any())
                 <div class="w-full bg-red-700 p-5 mb-5 rounded-xl">
-                    <ul class="list-disc pl-4">
+                    <ul class="list-disc rtl:pr-4 ltr:pl-4">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach

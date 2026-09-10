@@ -177,8 +177,8 @@ it('renders livewire likedby component with empty state when post has zero likes
 
     Livewire::test('posts.likedby', ['post' => $post])
         ->assertOk()
-        ->assertDontSee('Liked By')
-        ->assertDontSee('others');
+        ->assertDontSee(trim(__('Liked By ')))
+        ->assertDontSee(__('others'));
 });
 
 it('renders livewire likedby component with username when post has 1 like', function () {
@@ -190,9 +190,9 @@ it('renders livewire likedby component with username when post has 1 like', func
 
     Livewire::test('posts.likedby', ['post' => $post])
         ->assertOk()
-        ->assertSee('Liked By')
+        ->assertSee(trim(__('Liked By ')))
         ->assertSee('alice')
-        ->assertDontSee('others');
+        ->assertDontSee(__('others'));
 });
 
 it('renders livewire likedby component with others text when post has multiple likes', function () {
@@ -207,8 +207,8 @@ it('renders livewire likedby component with others text when post has multiple l
 
     Livewire::test('posts.likedby', ['post' => $post])
         ->assertOk()
-        ->assertSee('Liked By')
-        ->assertSee('others');
+        ->assertSee(trim(__('Liked By ')))
+        ->assertSee(__('others'));
 });
 
 it('refreshes likes count on livewire likedby component when refreshLikes is triggered', function () {

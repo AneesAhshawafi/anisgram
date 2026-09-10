@@ -141,9 +141,12 @@ class PostController extends Controller
 
     public function explore()
     {
-        // whereRelation('user','private_account','=',0) get posts for the users the thier accounts art not private
-        $posts = Post::whereRelation('user', 'private_account', '=', 0)->whereNot('user_id', auth()->id())->simplePaginate(12);
 
-        return view('posts.explore', compact('posts'));
+        // whereRelation('user','private_account','=',0) get posts for the users the thier accounts art not private
+        // $posts = Post::whereRelation('user', 'private_account', '=', 0)->whereNot('user_id', auth()->id())->paginate(9);
+        // $posts = Post::whereRelation('user', 'private_account', '=', 0)->whereNot('user_id', auth()->id())->simplePaginate(9);
+
+        // return view('posts.explore', compact('posts'));
+        return view('posts.explore');
     }
 }

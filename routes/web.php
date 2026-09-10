@@ -6,12 +6,14 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 
 // Route::get('/', [PostController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 require __DIR__.'/auth.php';
 
 Route::middleware('auth')->group(function () {
@@ -43,6 +45,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/{user:username}/follow', [UserController::class, 'follow'])->name('follow_user');
     Route::get('/{user:username}/unfollow', [UserController::class, 'unfollow'])->name('unfollow_user');
 });
+Route::get('/lang-ar', function () {
+    Session::put('lang', 'ar');
 
+    return back();
+});
+Route::get('/lang-en', function () {
+    Session::put('lang', 'en');
+
+    return back();
+});
 // user profile
 Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');
