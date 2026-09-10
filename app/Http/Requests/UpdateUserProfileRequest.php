@@ -39,7 +39,7 @@ class UpdateUserProfileRequest extends FormRequest
             'email' => ['required', 'email'],
             'password' => ['min:8', 'nullable', 'confirmed'],
             'lang' => 'required',
-
+            'theme' => ['nullable', 'string', 'in:light,dark,system'],
         ];
     }
 }

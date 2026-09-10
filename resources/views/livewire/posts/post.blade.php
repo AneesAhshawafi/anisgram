@@ -19,7 +19,8 @@
             {{-- like component --}}
             <livewire:posts.like :$post />
             <a href="/p/{{ $post->slug }}" class="grow">
-                <span class="material-symbols-outlined hover:text-gray-400 cursor-pointer rtl:ml-3 ltr:mr-3">
+                <span
+                    class="material-symbols-outlined text-gray-900 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 cursor-pointer rtl:ml-3 ltr:mr-3">
                     comment
                 </span>
             </a>
@@ -31,21 +32,21 @@
             {{ $post->description }}
         </div>
         @if ($post->comments->count() > 0)
-            <div class="rtl:pr-3 ltr:pl-3 text-gray-300">
-                <a
+            <div class="rtl:pr-3 ltr:pl-3 text-gray-600 dark:text-gray-400">
+                <a class="hover:text-gray-900 dark:hover:text-gray-200"
                     href="/p/{{ $post->slug }}">{{ __('View All :count comments', ['count' => $post->comments->count()]) }}</a>
             </div>
         @else
-            <div class="rtl:pr-3 ltr:pl-3 pb-3 text-gray-300">
+            <div class="rtl:pr-3 ltr:pl-3 pb-3 text-gray-500 dark:text-gray-400">
                 <p>{{ __('No comments on this post yet') }}</p>
             </div>
         @endif
 
-        <div class="rtl:pr-3 ltr:pl-3 pb-3 text-sm uppercase text-gray-300">
+        <div class="rtl:pr-3 ltr:pl-3 pb-3 text-sm uppercase text-gray-500 dark:text-gray-400">
             {{ $post->created_at->longAbsoluteDiffForHumans() }} {{ __('ago') }}
         </div>
         <div class="card-footer">
-            <div class="border-t border-gray-400 p-2">
+            <div class="border-t border-gray-200 dark:border-gray-700 p-2">
                 <form action="/p/{{ $post->slug }}/comment" method="POST">
                     @csrf
                     <div class="flex flex-row">

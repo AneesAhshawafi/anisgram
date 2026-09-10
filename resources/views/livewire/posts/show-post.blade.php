@@ -1,7 +1,7 @@
 <div>
     <div class="flex flex-col justify-center items-center w-full ">
         @if ($errors->any())
-            <div class="w-full bg-red-700 p-5 mb-5 rounded-xl">
+            <div class="w-full bg-red-700 text-white p-5 mb-5 rounded-xl">
                 <ul class="list-disc rtl:pr-4 ltr:pl-4">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -17,16 +17,16 @@
                 class="max-h-screen object-cover mx-auto">
         </div>
         {{-- right side --}}
-        <div class="flex flex-col w-full bg-gray-800 md:w-5/12">
+        <div class="flex flex-col w-full bg-white dark:bg-gray-800 md:w-5/12">
             {{-- top --}}
-            <div class="border-b border-gray-500">
+            <div class="border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center p-5">
                     <img src="{{ $this->targetPost->user->image }}" alt="{{ $this->targetPost->user->username }}"
                         class="rtl:ml-5 ltr:mr-5 h-10 w-10 rounded-full">
                     <div class="grow">
 
                         <a href="/{{ $this->targetPost->user->username }}"
-                            class="font-bold text-white ">{{ $this->targetPost->user->username }}</a>
+                            class="font-bold text-gray-900 dark:text-white ">{{ $this->targetPost->user->username }}</a>
                     </div>
                     @can('update', $this->targetPost)
                         <div class=" text-yellow-300" title="{{ __('edit your post') }}">
@@ -57,46 +57,46 @@
                 <div class="flex items-start p-5">
 
                     {{-- <img src="{{ $this->targetPost->user->image }}" class="mr-5 h-10 w-10 rounded-full"> --}}
-                    <div class="text-white text-sm">
+                    <div class="text-gray-900 dark:text-white text-sm">
                         {{-- <a href="/{{ $this->targetPost->user->username }}"
                             class="font-bold text-white">{{ $this->targetPost->user->username }}</a> --}}
                         {{ $this->targetPost->description }}
                     </div>
                 </div>
                 {{-- comments --}}
-                <div class=" border-t border-gray-500">
+                <div class=" border-t border-gray-200 dark:border-gray-700">
                     {{-- <h2 class="text-white pl-3">Comments</h2> --}}
 
                     @foreach ($this->targetPost->comments as $comment)
                         <div class="flex items-start px-5 py-2">
                             <img src="{{ $comment->user->image }}" class="rtl:ml-5 ltr:mr-5 h-10 w-10 rounded-full">
                             <div class="flex flex-col">
-                                <div class="text-white">
+                                <div class="text-gray-900 dark:text-white">
                                     <a href="/{{ $comment->user->username }}"
-                                        class="font-bold text-white">{{ $comment->user->username }}</a>
+                                        class="font-bold text-gray-900 dark:text-white">{{ $comment->user->username }}</a>
                                     {{ $comment->body }}
                                 </div>
-                                <div class="mt-1 text-sm font-bold text-gray-200">
+                                <div class="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
                                     {{ $comment->created_at->longAbsoluteDiffForHumans() }} {{ __('ago') }}
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
-                <div class="p-3 flex flex-row space-x-2 border-t border-gray-500">
+                <div class="p-3 flex flex-row space-x-2 border-t border-gray-200 dark:border-gray-700">
                     {{-- comments components  --}}
                     {{-- <livewire:posts.commnets /> --}}
                     {{-- like component --}}
                     <livewire:posts.like :post="$this->targetPost" />
                     <a onClick="document.getElementById('comment_body').focus()" class="grow">
                         <span
-                            class="material-symbols-outlined text-white hover:text-gray-400 cursor-pointer rtl:ml-3 ltr:mr-3">
+                            class="material-symbols-outlined text-gray-800 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 cursor-pointer rtl:ml-3 ltr:mr-3">
                             comment
                         </span>
                     </a>
                 </div>
                 <livewire:posts.likedby :post="$this->targetPost" />
-                <div class="border-t border-gray-500 p-5">
+                <div class="border-t border-gray-200 dark:border-gray-700 p-5">
                     <form action="/p/{{ $this->targetPost->slug }}/comment" method="POST">
                         @csrf
                         <div class="flex flex-row">

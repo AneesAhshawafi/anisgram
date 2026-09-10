@@ -71,7 +71,7 @@ new class extends Component {
 
 <div>
     <a wire:click="toggle"
-        class="rtl:pr-5 ltr:pl-5 {{ $this->isPending ? 'text-gray-400' : 'text-white' }} hover:text-gray-600 cursor-pointer {{ $this->buttonClasses }}">
+        class="rtl:pr-5 ltr:pl-5 {{ $this->isPending ? 'text-gray-500 dark:text-gray-400' : 'text-blue-500 dark:text-white' }} hover:text-blue-700 dark:hover:text-gray-300 cursor-pointer {{ $this->buttonClasses }}">
         {{ __($this->followState) }}
     </a>
 </div>
