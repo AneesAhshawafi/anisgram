@@ -14,9 +14,9 @@
                 </div>
                 <div class="flex flex-col">
                     <a href="{{ auth()->user()->username }}"
-                        class="font-bold text-white">{{ auth()->user()->username }}</a>
+                        class="font-bold text-gray-900 dark:text-white">{{ auth()->user()->username }}</a>
 
-                    <div class="text-gray-400 text-sm">{{ auth()->user()->name }}</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm">{{ auth()->user()->name }}</div>
                 </div>
             </div>
             <livewire:users.suggested_users />

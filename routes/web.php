@@ -14,7 +14,7 @@ Route::get('/dashboard', function () {
     return redirect()->route('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Route::middleware('auth')->group(function () {
     // profile
@@ -55,5 +55,15 @@ Route::get('/lang-en', function () {
 
     return back();
 });
+Route::get('/theme/{theme}', function (string $theme) {
+    if (in_array($theme, ['light', 'dark', 'system'])) {
+        Session::put('theme', $theme);
+        if (auth()->check()) {
+            auth()->user()->update(['theme' => $theme]);
+        }
+    }
+
+    return response()->noContent();
+})->name('theme.update');
 // user profile
 Route::get('/{user:username}', [UserController::class, 'index'])->name('user_profile');

@@ -318,5 +318,9 @@
     "You're logged in!": "لقد قمت بتسجيل الدخول!",
     "Your email address is unverified.": "لم يتم التحقق من عنوان بريدك الإلكتروني.",
     "Your profile has been updated successfully!": "تم تحديث ملفك الشخصي بنجاح!",
-    "Language": "اللغة"
+    "Language": "اللغة",
+    "Theme": "المظهر",
+    "Light": "فاتح",
+    "Dark": "داكن",
+    "System": "تلقائي"
 }

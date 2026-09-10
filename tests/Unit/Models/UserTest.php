@@ -22,7 +22,8 @@ it('has the correct fillable attributes', function () {
         ->toContain('image')
         ->toContain('email')
         ->toContain('password')
-        ->toContain('lang');
+        ->toContain('lang')
+        ->toContain('theme');
 });
 
 /**

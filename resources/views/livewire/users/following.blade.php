@@ -6,6 +6,6 @@
         </div>
         <button
             wire:click="$dispatch('openModal', { component: 'users.following-modal' , arguments: { user_id: {{ $this->targetUser->id }} }})"
-            class="text-neutral-500 ">{{ __('following') }}</button>
+            class="text-gray-600 dark:text-gray-400 font-medium hover:text-gray-900 dark:hover:text-white">{{ __('following') }}</button>
     </li>
 </div>

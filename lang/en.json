@@ -318,5 +318,9 @@
     "You're logged in!": "You're logged in!",
     "Your email address is unverified.": "Your email address is unverified.",
     "Your profile has been updated successfully!": "Your profile has been updated successfully!",
-    "Language": "Language"
+    "Language": "Language",
+    "Theme": "Theme",
+    "Light": "Light",
+    "Dark": "Dark",
+    "System": "System"
 }

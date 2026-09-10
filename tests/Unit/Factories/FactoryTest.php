@@ -22,6 +22,7 @@ it('user factory creates a valid user record', function () {
     expect($user->email)->not->toBeEmpty();
     expect($user->password)->not->toBeEmpty();
     expect($user->lang)->toBe('ar');
+    expect($user->theme)->toBe('light');
 
     $this->assertDatabaseHas('users', ['email' => $user->email]);
 });

@@ -7,7 +7,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-4 mt-5 text-white">
+    <div class="grid grid-cols-4 mt-5 text-gray-900 dark:text-white">
         {{-- User Image --}}
 
         <div class="px-4 col-span-1 order-1">{{-- col-span-1 :means this div take one column from the grid columns --}}
@@ -22,13 +22,14 @@
             {{--  name --}}
             <p class="font-bold">{{ $user->name }}</p>
             {{-- User statistics  --}}
-            <div class="col-span-3   text-md border-y border-y-neutral-200 order-2 md:order-3 md:border-none">
+            <div
+                class="col-span-3 text-md border-y border-y-neutral-200 dark:border-y-neutral-700 order-2 md:order-3 md:border-none">
                 <ul class="text-md flex flex-row justify-around md:justify-start md:space-x-4 rtl:space-x-reverse">
                     <li class="flex flex-col md:flex-row text-center items-center">
                         <div class="rtl:md:ml-1 ltr:md:mr-1 font-bold md:font-normal">
                             {{ $user->posts->count() }}
                         </div>
-                        <span class="text-neutral-500 ">{{ __('posts') }}</span>
+                        <span class="text-gray-600 dark:text-gray-400 font-medium">{{ __('posts') }}</span>
                     </li>
                     <li class="flex flex-col md:flex-row text-center items-center">
                         <div class="rtl:md:ml-1 ltr:md:mr-1 font-bold md:font-normal p-2">
@@ -36,7 +37,7 @@
                         </div>
                         <button
                             onclick="Livewire.dispatch('openModal', { component: 'users.follower-modal', arguments: { user_id: {{ $user->id }} } })"
-                            class="text-neutral-500 ">{{ __('followers') }}</button>
+                            class="text-gray-600 dark:text-gray-400 font-medium hover:text-gray-900 dark:hover:text-white">{{ __('followers') }}</button>
                     </li>
                     <livewire:users.following :user_id="$user->id" />
                 </ul>
@@ -53,7 +54,7 @@
             @auth
                 @if ($user->id === auth()->id())
                     <a href="/{{ $user->username }}/edit"
-                        class="w-44 border text-lg py-3 px-10 font-bold rounded-md border-neutral-300 text-center">
+                        class="w-44 border text-lg py-3 px-10 font-bold rounded-md border-neutral-300 dark:border-neutral-700 text-gray-900 dark:text-white text-center">
                         {{ __('Edit profile') }}
                     </a>
                 @else
@@ -66,7 +67,7 @@
         </div>
     </div>
     {{-- Bottom --}}
-    <div class=" border-t-[1px] border-gray-400 pt-2 mt-10">
+    <div class=" border-t-[1px] border-gray-200 dark:border-gray-700 pt-2 mt-10">
 
         @if (
             $user->posts->count() > 0 and
@@ -82,7 +83,7 @@
                 @endforeach
             </div>
         @else
-            <div class="w-full text-center mt-20 text-white">
+            <div class="w-full text-center mt-20 text-gray-600 dark:text-gray-400">
                 @if ($user->private_account == true and auth()->id() != $user->id)
                     {{ __('This account is private. Follow them to see thier posts.') }}
                 @else

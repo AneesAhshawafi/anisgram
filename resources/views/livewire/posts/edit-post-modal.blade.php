@@ -5,10 +5,11 @@
     </div>
 
     {{-- Right Side --}}
-    <div class="lg:w-4/12 flex flex-col bg-white p-5">
+    <div class="lg:w-4/12 flex flex-col bg-white dark:bg-gray-800 p-5">
         <div class="mt-3">
             <textarea name="description" id="description" cols="30" rows="10" placeholder="{{ __('Write description ... ') }}"
-                class="border-none w-full" wire:model="description"></textarea>
+                class="border-none w-full bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-0"
+                wire:model="description"></textarea>
             @error('description')
                 <span class="text-sm text-red-500 py-5">{{ $message }}</span>
             @enderror

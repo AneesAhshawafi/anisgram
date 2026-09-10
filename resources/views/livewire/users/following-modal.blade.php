@@ -1,8 +1,9 @@
-<div class="max-h-96 flex flex-col">
-    <div class="flex w-full items-center border-b border-b-neutral-700 p-2">
-        <h1 class="text-lg font-bold text-center pb-2 grow">{{ __('Following') }}</h1>
+<div class="max-h-96 flex flex-col bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg">
+    <div class="flex w-full items-center border-b border-b-gray-200 dark:border-b-neutral-700 p-2">
+        <h1 class="text-lg font-bold text-center pb-2 grow text-gray-900 dark:text-white">{{ __('Following') }}</h1>
         <button wire:click="$dispatch('closeModal')">
-            <span class="material-symbols-outlined text-gray-600">close</span>
+            <span
+                class="material-symbols-outlined text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">close</span>
         </button>
     </div>
     <ul class="overflow-y-auto p-3">
@@ -13,25 +14,25 @@
 
                         <a href="/{{ $following->username }}">
                             <img src="{{ $following->image }}" alt="{{ $following->username }}"
-                                class="border border-gray-700 rounded-full  h-12 w-12 aspect-square object-cover">
+                                class="border border-gray-300 dark:border-gray-700 rounded-full h-12 w-12 aspect-square object-cover">
                         </a>
                     </div>
-                    <div class="flex flex-col ltr:items-end rtl:items-start  grow">
+                    <div class="flex flex-col ltr:items-end rtl:items-start grow">
                         <a href="/{{ $following->username }}"
-                            class="rtl:text-algin-start font-bold text-gray-700">{{ $following->username }}
+                            class="rtl:text-align-start font-bold text-gray-900 dark:text-white">{{ $following->username }}
                         </a>
-                        <div class="text-gray-500 text-sm">{{ $following->name }}</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ $following->name }}</div>
                     </div>
                     @can('update', $this->targetUser)
                         <div>
                             <button wire:click="unfollow({{ $following->id }})"
-                                class="border border-gray-500 px-2 py-1 rounded">{{ __('Unfollow') }}</button>
+                                class="border border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-sm transition">{{ __('Unfollow') }}</button>
                         </div>
                     @endcan
                 </div>
             </li>
         @empty
-            <li class="w-full p-3 text-center">
+            <li class="w-full p-3 text-center text-gray-600 dark:text-gray-400">
                 {{ __('You are not following anyone.') }}
             </li>
         @endforelse

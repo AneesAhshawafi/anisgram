@@ -31,10 +31,10 @@
     };
     ?>
 
-    <div class="text-white">
+    <div class="text-gray-900 dark:text-white">
         <a wire:click="toggle_like">
             <span
-                class="material-symbols-outlined {{ $this->liked ? 'fill text-red-500' : '' }} hover:text-gray-400 cursor-pointer">
+                class="material-symbols-outlined {{ $this->liked ? 'fill text-red-500' : '' }} hover:text-gray-500 dark:hover:text-gray-300 cursor-pointer">
                 favorite
             </span>
         </a>

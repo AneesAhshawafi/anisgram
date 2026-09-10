@@ -23,13 +23,36 @@
             </div>
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <!-- Theme toggle button -->
+                <div x-data="{
+                    dark: document.documentElement.classList.contains('dark'),
+                    toggle() {
+                        this.dark = !this.dark;
+                        if (this.dark) {
+                            document.documentElement.classList.add('dark');
+                            localStorage.theme = 'dark';
+                        } else {
+                            document.documentElement.classList.remove('dark');
+                            localStorage.theme = 'light';
+                        }
+                        fetch('/theme/' + (this.dark ? 'dark' : 'light'));
+                    }
+                }" class="flex items-center rtl:ml-2 ltr:mr-2">
+                    <button @click="toggle()" type="button"
+                        class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        :title="dark ? '{{ __('Light') }}' : '{{ __('Dark') }}'">
+                        <span x-show="dark" class="material-symbols-outlined block">light_mode</span>
+                        <span x-show="!dark" class="material-symbols-outlined block"
+                            style="display: none;">dark_mode</span>
+                    </button>
+                </div>
                 @guest
                     <div class="hidden md:flex md:items-center md:space-x-2 rtl:space-x-reverse">
                         <div class="space-x-3 rtl:space-x-reverse text-[1.6rem] rtl:ml-5 ltr:mr-5 leading-5">
                             <a href="/login"
                                 class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semitbold text-xs text-white uppercase tracking-widest rtl:ml-2 ltr:mr-2">{{ __('Login') }}</a>
                             <a href="/register"
-                                class="inline-flex items-center px-4 py-2 font-semibold text-sm text-gray-400 uppercase tracking-widest">{{ __('Register') }}</a>
+                                class="inline-flex items-center px-4 py-2 font-semibold text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white uppercase tracking-widest">{{ __('Register') }}</a>
                         </div>
                     </div>
                 @endguest
@@ -38,26 +61,18 @@
                         <div class="space-x-3 rtl:space-x-reverse text-[1.5rem] rtl:ml-2 ltr:mr-2 leading-5">
                             <a href="{{ route('home') }}" title="{{ __('home page') }}">
                                 {!! url()->current() == route('home')
-                                    ? '<span class="material-symbols-outlined text-white ">home</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400 ">home</span>' !!}
-                            </a>
-                            {{-- <a href="{{ route('create_post') }}" title="{{ __('Create new post') }}">
-                                {!! url()->current() == route('create_post')
-                                    ? '<span class="material-symbols-outlined text-white ">add</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400 ">add</span>' !!} --}}
+                                    ? '<span class="material-symbols-outlined text-gray-900 dark:text-white ">home</span>'
+                                    : '<span class="material-symbols-outlined text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">home</span>' !!}
                             </a>
                             <button onclick="Livewire.dispatch('openModal', { component: 'posts.create-post-modal'})">
-                                <span class="material-symbols-outlined text-gray-400 ">add</span>
+                                <span
+                                    class="material-symbols-outlined text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">add</span>
                             </button>
                             <a href="{{ route('explore') }}" title="{{ __('Explore') }}">
                                 {!! url()->current() == route('explore')
-                                    ? '<span class="material-symbols-outlined text-white ">search</span>'
-                                    : '<span class="material-symbols-outlined text-gray-400 ">search</span>' !!}
+                                    ? '<span class="material-symbols-outlined text-gray-900 dark:text-white ">search</span>'
+                                    : '<span class="material-symbols-outlined text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">search</span>' !!}
                             </a>
-
-                            {{-- <button onclick="Livewire.dispatch('openModal', { component: 'users.pending-followers-list' })"
-                                class="text-neutral-500 "><span
-                                    class="material-symbols-outlined text-gray-400">person_add</span></button> --}}
                         </div>
                     </div>
 
@@ -68,7 +83,8 @@
                                     title="{{ __('Follow Requests') }}">
                                     <div class="relative inline-flex items-center justify-center">
                                         <livewire:users.pending-followers-count />
-                                        <span class="material-symbols-outlined text-gray-400">person_add</span>
+                                        <span
+                                            class="material-symbols-outlined text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">person_add</span>
                                     </div>
                                 </button>
                             </x-slot>
@@ -82,10 +98,10 @@
                         <x-dropdown :align="app()->getLocale() == 'ar' ? 'left' : 'right'" width="48">
                             <x-slot name="trigger">
                                 <button
-                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:text-gray-900 dark:hover:text-white focus:outline-none transition ease-in-out duration-150">
                                     <div class="rtl:ml-2 ltr:mr-2">
                                         <img src="{{ Auth::user()->image }}" alt=""
-                                            class="border border-gray-300  aspect-square object-cover  rounded-full h-8 w-8">
+                                            class="border border-gray-300 dark:border-gray-600 aspect-square object-cover rounded-full h-8 w-8">
                                     </div>
                                     <div>{{ Auth::user()->name }}</div>
 
@@ -123,6 +139,28 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
+                <div x-data="{
+                    dark: document.documentElement.classList.contains('dark'),
+                    toggle() {
+                        this.dark = !this.dark;
+                        if (this.dark) {
+                            document.documentElement.classList.add('dark');
+                            localStorage.theme = 'dark';
+                        } else {
+                            document.documentElement.classList.remove('dark');
+                            localStorage.theme = 'light';
+                        }
+                        fetch('/theme/' + (this.dark ? 'dark' : 'light'));
+                    }
+                }" class="flex items-center me-1">
+                    <button @click="toggle()" type="button"
+                        class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        :title="dark ? '{{ __('Light') }}' : '{{ __('Dark') }}'">
+                        <span x-show="dark" class="material-symbols-outlined block text-xl">light_mode</span>
+                        <span x-show="!dark" class="material-symbols-outlined block text-xl"
+                            style="display: none;">dark_mode</span>
+                    </button>
+                </div>
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -157,7 +195,7 @@
             <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
                 <div class="px-4">
                     <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    <div class="font-medium text-sm text-gray-600 dark:text-gray-400">{{ Auth::user()->email }}</div>
                 </div>
 
                 <div class="mt-3 space-y-1">

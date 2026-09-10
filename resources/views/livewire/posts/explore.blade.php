@@ -11,14 +11,14 @@
     </div>
 
     @if ($posts->isEmpty())
-        <div class="w-full text-center mt-20 text-gray-400">
+        <div class="w-full text-center mt-20 text-gray-600 dark:text-gray-400 font-medium">
             <p>{{ __('No posts to explore yet.') }}</p>
         </div>
     @endif
 
     @if ($hasMore)
         <div wire:intersect="loadMore" class="py-10 flex justify-center items-center">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
         </div>
     @endif
 </div>
