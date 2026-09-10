@@ -6,7 +6,7 @@
         {{-- Right side --}}
         <div class="hidden w-[30rem] lg:flex lg:flex-col  pt-4">
             <div class="flex flex-row text-sm">
-                <div class="mr-5">
+                <div class="rtl:ml-5 ltr:mr-5">
                     <a href="/{{ auth()->user()->username }}">
                         <img src="{{ auth()->user()->image }}" alt="{{ auth()->user()->username }}"
                             class="border border-gray-300 rounded-full aspect-square h-12 w-12">

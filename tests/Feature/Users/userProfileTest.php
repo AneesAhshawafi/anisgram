@@ -72,7 +72,7 @@ it('hides posts and shows private message when viewing another user private prof
     $response = $this->actingAs($viewer)->get(route('user_profile', $privateUser));
 
     $response->assertOk();
-    $response->assertSee('This account is private. Follow them to see thier posts.');
+    $response->assertSee(__('This account is private. Follow them to see thier posts.'));
     $response->assertDontSee($post->slug);
 });
 
@@ -155,6 +155,7 @@ it('allows user to update basic profile information', function () {
         'bio' => 'Updated bio text',
         'email' => 'new@example.com',
         'private_account' => 'on',
+        'lang' => 'en',
     ]);
 
     $response->assertRedirect();
@@ -167,6 +168,7 @@ it('allows user to update basic profile information', function () {
     expect($user->bio)->toBe('Updated bio text');
     expect($user->email)->toBe('new@example.com');
     expect($user->private_account)->toBeTruthy();
+    expect($user->lang)->toBe('en');
 });
 
 it('allows user to update profile image', function () {
@@ -180,6 +182,7 @@ it('allows user to update profile image', function () {
         'name' => $user->name,
         'email' => $user->email,
         'image' => $newAvatar,
+        'lang' => 'ar',
     ]);
 
     $response->assertRedirect();
@@ -202,6 +205,7 @@ it('allows user to update password when confirmation matches', function () {
         'email' => $user->email,
         'password' => 'new-password-123',
         'password_confirmation' => 'new-password-123',
+        'lang' => 'ar',
     ]);
 
     $response->assertRedirect();
@@ -222,6 +226,7 @@ it('keeps existing password if password field is left empty', function () {
         'email' => $user->email,
         'password' => '',
         'password_confirmation' => '',
+        'lang' => 'ar',
     ]);
 
     $response->assertRedirect();
@@ -268,6 +273,7 @@ it('allows user to submit their current username', function () {
         'username' => 'same_username',
         'name' => 'Updated Name',
         'email' => $user->email,
+        'lang' => 'ar',
     ]);
 
     $response->assertSessionHasNoErrors();
@@ -329,4 +335,36 @@ it('fails validation when image is not a valid image file', function () {
     ]);
 
     $response->assertSessionHasErrors(['image']);
+});
+
+it('fails validation when lang is missing', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->patch(route('update_user_profile', $user), [
+        'username' => $user->username,
+        'name' => $user->name,
+        'email' => $user->email,
+        // 'lang' is missing
+    ]);
+
+    $response->assertSessionHasErrors(['lang']);
+});
+
+it('allows user to update language preference', function () {
+    $user = User::factory()->create([
+        'lang' => 'ar',
+    ]);
+
+    $response = $this->actingAs($user)->patch(route('update_user_profile', $user), [
+        'username' => $user->username,
+        'name' => $user->name,
+        'email' => $user->email,
+        'lang' => 'en',
+    ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success', __('Your profile has been updated successfully!', [], 'en'));
+
+    $user->refresh();
+    expect($user->lang)->toBe('en');
 });

@@ -4,7 +4,7 @@
         <h1 class="text-lg text-center grow">{{ __('Create New Post') }}</h1>
 
         @if ($image)
-            <button class="font-bold text-blue-400 mr-3" wire:click="save_temp">{{ __('Next') }}</button>
+            <button class="font-bold text-blue-400 rtl:ml-3 ltr:mr-3" wire:click="save_temp">{{ __('Next') }}</button>
         @endif
     </div>
 

@@ -6,7 +6,7 @@
 
     {{-- Right Side --}}
     <div class="lg:w-4/12 flex flex-col bg-white p-5">
-        <h1 class="text-2xl text-center mb-10">Filters</h1>
+        <h1 class="text-2xl text-center mb-10">{{ __('Filters') }}</h1>
 
         <div class="grid grid-cols-3 gap-4 items-start">
             @foreach ($filters as $filter)

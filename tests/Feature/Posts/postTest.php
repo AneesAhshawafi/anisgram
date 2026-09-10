@@ -410,6 +410,7 @@ it('renders the explore view for authenticated users', function () {
 
     $response->assertOk();
     $response->assertViewIs('posts.explore');
+    $response->assertSeeLivewire('posts.explore-posts');
 });
 
 it('excludes the authenticated user own posts from the explore feed', function () {
@@ -450,7 +451,7 @@ it('includes posts from public accounts of other users in the explore feed', fun
     $response->assertSee('/p/'.$publicPost->slug);
 });
 
-it('paginates posts on the explore page with 12 items per page', function () {
+it('renders the explore posts livewire component on the explore page', function () {
     $user = User::factory()->create();
     $publicUser = User::factory()->create(['private_account' => 0]);
 
@@ -461,7 +462,5 @@ it('paginates posts on the explore page with 12 items per page', function () {
     $response = $this->actingAs($user)->get(route('explore'));
 
     $response->assertOk();
-    $response->assertViewHas('posts', function ($posts) {
-        return $posts->count() === 12;
-    });
+    $response->assertSeeLivewire('posts.explore-posts');
 });

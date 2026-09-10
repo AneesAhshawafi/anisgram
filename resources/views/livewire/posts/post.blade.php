@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header">
         <div class="flex flex-row items-center grow">
-            <img src="{{ $post->user->image }}" class="w-9 h-9 mr-3 rounded-full" />
+            <img src="{{ $post->user->image }}" class="w-9 h-9 rtl:ml-3 ltr:mr-3 rounded-full" />
             <a href="/{{ $post->user->username }}" class="font-bold">{{ $post->user->username }}</a>
         </div>
         <livewire:posts.follow-button :user_id="$post->user->id" />
@@ -19,29 +19,30 @@
             {{-- like component --}}
             <livewire:posts.like :$post />
             <a href="/p/{{ $post->slug }}" class="grow">
-                <span class="material-symbols-outlined  hover:text-gray-400 cursor-pointer mr-3">
+                <span class="material-symbols-outlined hover:text-gray-400 cursor-pointer rtl:ml-3 ltr:mr-3">
                     comment
                 </span>
             </a>
         </div>
         <livewire:posts.likedby :$post />
-        <div class="pl-3 ">
+        <div class="rtl:pr-3 ltr:pl-3">
 
-            <a href="/{{ $post->user->username }}" class="font-bold mr-1">{{ $post->user->username }}</a>
+            <a href="/{{ $post->user->username }}" class="font-bold rtl:ml-1 ltr:mr-1">{{ $post->user->username }}</a>
             {{ $post->description }}
         </div>
         @if ($post->comments->count() > 0)
-            <div class="pl-3  text-gray-300">
-                <a href="/p/{{ $post->slug }}">{{ __("View All {$post->comments->count()}  comments") }}</a>
+            <div class="rtl:pr-3 ltr:pl-3 text-gray-300">
+                <a
+                    href="/p/{{ $post->slug }}">{{ __('View All :count comments', ['count' => $post->comments->count()]) }}</a>
             </div>
         @else
-            <div class="pl-3 pb-3 text-gray-300">
-                <p>No comments on this post yet</p>
+            <div class="rtl:pr-3 ltr:pl-3 pb-3 text-gray-300">
+                <p>{{ __('No comments on this post yet') }}</p>
             </div>
         @endif
 
-        <div class=" pl-3 pb-3 text-sm uppercase text-gray-300">
-            {{ $post->created_at->longAbsoluteDiffForHumans() }} ago
+        <div class="rtl:pr-3 ltr:pl-3 pb-3 text-sm uppercase text-gray-300">
+            {{ $post->created_at->longAbsoluteDiffForHumans() }} {{ __('ago') }}
         </div>
         <div class="card-footer">
             <div class="border-t border-gray-400 p-2">

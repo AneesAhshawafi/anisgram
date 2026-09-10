@@ -21,7 +21,8 @@ it('has the correct fillable attributes', function () {
         ->toContain('username')
         ->toContain('image')
         ->toContain('email')
-        ->toContain('password');
+        ->toContain('password')
+        ->toContain('lang');
 });
 
 /**

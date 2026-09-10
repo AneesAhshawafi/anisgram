@@ -2,7 +2,7 @@
     <div class="flex flex-col justify-center items-center w-full ">
         @if ($errors->any())
             <div class="w-full bg-red-700 p-5 mb-5 rounded-xl">
-                <ul class="list-disc pl-4">
+                <ul class="list-disc rtl:pr-4 ltr:pl-4">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -22,11 +22,11 @@
             <div class="border-b border-gray-500">
                 <div class="flex items-center p-5">
                     <img src="{{ $this->targetPost->user->image }}" alt="{{ $this->targetPost->user->username }}"
-                        class="mr-5 h-10 w-10 rounded-full">
+                        class="rtl:ml-5 ltr:mr-5 h-10 w-10 rounded-full">
                     <div class="grow">
 
                         <a href="/{{ $this->targetPost->user->username }}"
-                            class="font-bold text-white">{{ $this->targetPost->user->username }}</a>
+                            class="font-bold text-white ">{{ $this->targetPost->user->username }}</a>
                     </div>
                     @can('update', $this->targetPost)
                         <div class=" text-yellow-300" title="{{ __('edit your post') }}">
@@ -41,8 +41,8 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit"
-                                onclick="return confirm('Are you sure you want to delete this post?')"><span
-                                    class="material-symbols-outlined text-red-500 pl-2">
+                                onclick="return confirm('{{ __('Are you sure you want to delete this post?') }}')"><span
+                                    class="material-symbols-outlined text-red-500 rtl:pr-2 ltr:pl-2">
                                     delete
                                 </span></button>
                         </form>
@@ -69,7 +69,7 @@
 
                     @foreach ($this->targetPost->comments as $comment)
                         <div class="flex items-start px-5 py-2">
-                            <img src="{{ $comment->user->image }}" class="mr-5 h-10 w-10 rounded-full">
+                            <img src="{{ $comment->user->image }}" class="rtl:ml-5 ltr:mr-5 h-10 w-10 rounded-full">
                             <div class="flex flex-col">
                                 <div class="text-white">
                                     <a href="/{{ $comment->user->username }}"
@@ -77,7 +77,7 @@
                                     {{ $comment->body }}
                                 </div>
                                 <div class="mt-1 text-sm font-bold text-gray-200">
-                                    {{ $comment->created_at->longAbsoluteDiffForHumans() }} ago
+                                    {{ $comment->created_at->longAbsoluteDiffForHumans() }} {{ __('ago') }}
                                 </div>
                             </div>
                         </div>
@@ -89,7 +89,8 @@
                     {{-- like component --}}
                     <livewire:posts.like :post="$this->targetPost" />
                     <a onClick="document.getElementById('comment_body').focus()" class="grow">
-                        <span class="material-symbols-outlined text-white hover:text-gray-400 cursor-pointer mr-3">
+                        <span
+                            class="material-symbols-outlined text-white hover:text-gray-400 cursor-pointer rtl:ml-3 ltr:mr-3">
                             comment
                         </span>
                     </a>

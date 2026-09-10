@@ -24,18 +24,18 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @guest
-                    <div class="hidden md:flex md:items-center md:space-x-2">
-                        <div class="space-x-3 text-[1.6rem] mr-5 leading-5">
+                    <div class="hidden md:flex md:items-center md:space-x-2 rtl:space-x-reverse">
+                        <div class="space-x-3 rtl:space-x-reverse text-[1.6rem] rtl:ml-5 ltr:mr-5 leading-5">
                             <a href="/login"
-                                class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semitbold text-xs text-white uppercase tracking-widest mr-2">{{ __('Login') }}</a>
+                                class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semitbold text-xs text-white uppercase tracking-widest rtl:ml-2 ltr:mr-2">{{ __('Login') }}</a>
                             <a href="/register"
                                 class="inline-flex items-center px-4 py-2 font-semibold text-sm text-gray-400 uppercase tracking-widest">{{ __('Register') }}</a>
                         </div>
                     </div>
                 @endguest
                 @auth
-                    <div class="flex items-center space-x-3">
-                        <div class="space-x-3 text-[1.5rem] mr-2 leading-5">
+                    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                        <div class="space-x-3 rtl:space-x-reverse text-[1.5rem] rtl:ml-2 ltr:mr-2 leading-5">
                             <a href="{{ route('home') }}" title="{{ __('home page') }}">
                                 {!! url()->current() == route('home')
                                     ? '<span class="material-symbols-outlined text-white ">home</span>'
@@ -62,9 +62,10 @@
                     </div>
 
                     <div class="hidden md:flex md:items-center ">
-                        <x-dropdown align="right" width="48">
+                        <x-dropdown :align="app()->getLocale() == 'ar' ? 'left' : 'right'" width="48">
                             <x-slot name="trigger">
-                                <button class="  ml-3 pb-2 mr-6  leading-5 " title="{{ __('Follow Requests') }}">
+                                <button class="rtl:mr-3 rtl:ml-6 ltr:ml-3 ltr:mr-6 pb-2 leading-5"
+                                    title="{{ __('Follow Requests') }}">
                                     <div class="relative inline-flex items-center justify-center">
                                         <livewire:users.pending-followers-count />
                                         <span class="material-symbols-outlined text-gray-400">person_add</span>
@@ -78,11 +79,11 @@
                         </x-dropdown>
                     </div>
                     <div class="hidden md:block">
-                        <x-dropdown align="right" width="48">
+                        <x-dropdown :align="app()->getLocale() == 'ar' ? 'left' : 'right'" width="48">
                             <x-slot name="trigger">
                                 <button
                                     class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                                    <div class="mr-2">
+                                    <div class="rtl:ml-2 ltr:mr-2">
                                         <img src="{{ Auth::user()->image }}" alt=""
                                             class="border border-gray-300  aspect-square object-cover  rounded-full h-8 w-8">
                                     </div>

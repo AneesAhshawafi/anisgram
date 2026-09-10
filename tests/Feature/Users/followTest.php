@@ -85,9 +85,9 @@ it('renders livewire follow component with Follow state when not following', fun
 
     Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertOk()
-        ->assertSee('Follow')
-        ->assertDontSee('Unfollow')
-        ->assertDontSee('Requested')
+        ->assertSee(__('Follow'))
+        ->assertDontSee(__('Unfollow'))
+        ->assertDontSee(__('Requested'))
         ->assertSee('text-white');
 });
 
@@ -98,12 +98,13 @@ it('renders livewire follow component with Unfollow state when following confirm
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
+    $component = Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertOk()
-        ->assertSee('Unfollow')
-        ->assertDontSee('Follow')
-        ->assertDontSee('Requested')
+        ->assertSee(__('Unfollow'))
+        ->assertDontSee(__('Requested'))
         ->assertSee('text-white');
+
+    expect($component->followState)->toBe('Unfollow');
 });
 
 it('renders livewire follow component with Requested state and muted text when follow request is pending', function () {
@@ -115,8 +116,8 @@ it('renders livewire follow component with Requested state and muted text when f
 
     Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
         ->assertOk()
-        ->assertSee('Requested')
-        ->assertDontSee('Unfollow')
+        ->assertSee(__('Requested'))
+        ->assertDontSee(__('Unfollow'))
         ->assertSee('text-gray-400');
 });
 
@@ -149,12 +150,13 @@ it('immediately updates UI from Follow to Unfollow on first click for public acc
 
     $this->actingAs($user);
 
-    Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
-        ->assertSee('Follow')
+    $component = Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
+        ->assertSee(__('Follow'))
         ->call('toggle')
-        ->assertSee('Unfollow')
-        ->assertDontSee('Follow');
+        ->assertSee(__('Unfollow'))
+        ->assertDontSee(__('Requested'));
 
+    expect($component->followState)->toBe('Unfollow');
     expect($user->isFollowing($targetUser))->toBeTrue();
 });
 
@@ -166,10 +168,10 @@ it('immediately updates UI from Unfollow to Follow when unfollowing', function (
     $this->actingAs($user);
 
     Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
-        ->assertSee('Unfollow')
+        ->assertSee(__('Unfollow'))
         ->call('toggle')
-        ->assertSee('Follow')
-        ->assertDontSee('Unfollow');
+        ->assertSee(__('Follow'))
+        ->assertDontSee(__('Unfollow'));
     expect($user->isFollowing($targetUser))->toBeFalse();
 });
 
@@ -180,11 +182,11 @@ it('immediately updates UI from Follow to Requested on first click for private a
     $this->actingAs($user);
 
     Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
-        ->assertSee('Follow')
+        ->assertSee(__('Follow'))
         ->call('toggle')
-        ->assertSee('Requested')
+        ->assertSee(__('Requested'))
         ->assertSee('text-gray-400')
-        ->assertDontSee('Unfollow');
+        ->assertDontSee(__('Unfollow'));
 
     expect($user->isPending($targetUser))->toBeTrue();
 });
@@ -197,10 +199,10 @@ it('cancels pending follow request and immediately updates UI to Follow', functi
     $this->actingAs($user);
 
     Livewire::test('posts.follow-button', ['user_id' => $targetUser->id])
-        ->assertSee('Requested')
+        ->assertSee(__('Requested'))
         ->call('toggle')
-        ->assertSee('Follow')
-        ->assertDontSee('Requested');
+        ->assertSee(__('Follow'))
+        ->assertDontSee(__('Requested'));
 
     expect($user->isPending($targetUser))->toBeFalse();
 });
@@ -212,7 +214,7 @@ it('handles non-existent target user gracefully without throwing errors', functi
 
     Livewire::test('posts.follow-button', ['user_id' => 99999])
         ->assertOk()
-        ->assertSee('Follow')
+        ->assertSee(__('Follow'))
         ->call('toggle')
         ->assertOk();
 });

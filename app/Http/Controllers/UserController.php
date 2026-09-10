@@ -40,6 +40,8 @@ class UserController extends Controller
 
     public function update(UpdateUserProfileRequest $request, User $user)
     {
+        // Retrieve only the validated input data to ensure security ($request->safe())
+        // and convert it into a Laravel Collection (->collect()) to use methods like ->get(), ->forget(), and ->has()
         $data = $request->safe()->collect();
         // if ($data['password'] == '') {
         //     unset($data['password']);
@@ -59,7 +61,7 @@ class UserController extends Controller
         $data['private_account'] = $request->has('private_account');
 
         $user->update($data->toArray());
-        session()->flash('success', __('Your profile has been updated successfully!'));
+        session()->flash('success', __('Your profile has been updated successfully!', [], $data['lang']));
 
         return redirect()->route('user_profile', $user);
     }
