@@ -14,7 +14,7 @@ Route::get('/dashboard', function () {
     return redirect()->route('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 Route::middleware('auth')->group(function () {
     // profile
