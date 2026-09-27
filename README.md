@@ -1,122 +1,168 @@
-<div align="center">
 
-# 🚀 Anisgram
 
-A scalable, containerized Laravel web application built with modern architecture standards, robust testing, and full Docker orchestration.
+# 🚀 أنيس غرام | Anisgram
 
-[![CI Status](https://github.com/AneesAhshawafi/anisgram/actions/workflows/ci.yml/badge.svg)](https://github.com/AneesAhshawafi/anisgram/actions)
+**منصة تواصل اجتماعي وتدوين مرئي متطورة مبنية بمعمارية سحابية حديثة، تجمع بين التفاعل اللحظي، ومعالجة الوسائط المتقدمة، وتجربة المستخدم السلسة.**
+
 [![Laravel Version](https://img.shields.io/badge/Laravel-13.x-FF2D20?style=flat&logo=laravel)](https://laravel.com)
-[![PHP Version](https://img.shields.io/badge/PHP-8.5-777BB4?style=flat&logo=php)](https://php.net)
+[![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat&logo=php)](https://php.net)
+[![Livewire](https://img.shields.io/badge/Livewire-4.x-FB70A9?style=flat&logo=livewire)](https://livewire.laravel.com)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v3%2Fv4-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
 [![Docker](https://img.shields.io/badge/Docker-Sail-2496ED?style=flat&logo=docker)](https://laravel.com/docs/sail)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-</div>
 
 ---
 
-## 🏗 Architecture & Tech Stack
+## 📌 نبذة عامة عن المشروع
 
-This application follows clean architecture principles to ensure maintainability, type safety, and seamless containerization.
+مشروع **أنيس غرام (Anisgram)** هو تطبيق شبكة تواصل اجتماعي متكامل مستوحى من منصات التدوين المرئي الحديثة، تم تصميمه وتطويره بالاعتماد على أفضل الممارسات البرمجية والمعمارية لتطبيقات الويب الحديثة. 
 
-| Component | Technology / Tool | Description |
-| :--- | :--- | :--- |
-| **Framework** | [Laravel 13.x](https://laravel.com) | Core backend web framework |
-| **Environment** | PHP 8.5 via Docker ([Laravel Sail](https://laravel.com/docs/sail)) | Containerized development runtime |
-| **Database** | MySQL 8.4 | Primary relational storage |
-| **Cache & Queue** | Redis (Alpine) | In-memory data store & queue handler |
-| **Code Quality** | [Laravel Pint](https://laravel.com/docs/pint) & [Larastan](https://github.com/larastan/larastan) | Code styling & static analysis |
-| **Testing** | [Pest PHP](https://pestphp.com) / PHPUnit | Test-driven development suite |
+يركز المشروع على تقديم أداء فائق، واستجابة لحظية، وتصميم متجاوب بالكامل يدعم اللغتين العربية والإنجليزية مع التبديل الديناميكي بين المظهر الليلي والمظهر الفاتح، مع معالجة احترافية للصور وفلاترها على جانب الخادم والمتصفح في آنٍ واحد.
 
 ---
 
-## 🛠 Prerequisites
+## 📸 لقطات من التطبيق (Application Showcase)
 
-Ensure you have the following installed on your local environment:
+### 🏠 1. الصفحة الرئيسية وتعدد الأنماط (Home Feed & Appearance)
 
-* 🐳 **Docker Desktop** (or Docker Engine with WSL 2 on Windows)
-* 🐙 **Git**
+| 🌙 الوضع الليلي - العربية (RTL) | ☀️ الوضع الفاتح - العربية (RTL) |
+| :---: | :---: |
+| ![Feed Dark Mode](screenshots/feed-dark-ar.png) | ![Feed Light Mode](screenshots/feed-light-ar.png) |
 
----
+| 🌐 الواجهة باللغة الإنجليزية (LTR) | 👥 التغذية الترحيبية واقتراحات المتابعة |
+| :---: | :---: |
+| ![English Feed](screenshots/feed-dark-en.png) | ![Empty Feed with Suggestions](screenshots/feed-empty-suggestions.png) |
 
-## ⚡ Quick Start & Installation
-
-Follow these steps to spin up the development environment in less than 2 minutes:
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/AneesAhshawafi/anisgram.git.git
-cd repository-name
-```
-
-### 2. Configure Environment Variables
-Copy the sanitized environment template:
-```bash
-cp .env.example .env
-```
-
-### 3. Start Application Containers
-Run Sail in detached mode:
-```bash
-./vendor/bin/sail up -d
-```
-
-> [!TIP]
-> Optionally create a shell alias for Sail for easier command execution:
-> ```bash
-> alias sail='[ -f sail ] && sh sail || ./vendor/bin/sail'
-> ```
-
-### 4. Initialize Application
-Generate the application key and execute database migrations with seeders:
-```bash
-sail artisan key:generate
-sail artisan migrate --seed
-```
-
-### 5. Access Application
-Open your browser and navigate to:
-```text
-http://localhost
-```
+| 📱 تدفق المنشورات والتفاعل الحي | 💡 القائمة الجانبية للمستخدمين المقترحين |
+| :---: | :---: |
+| ![Feed Posts Stream](screenshots/feed-stream-cropped.png) | ![Suggested Users Sidebar](screenshots/feed-suggestions-cropped.png) |
 
 ---
 
-## 🧪 Testing & Code Quality
+### ✨ 2. دورة إنشاء المنشورات وفلاتر الصور (Post Creation & Filters)
 
-Maintain code quality and ensure test suites pass before submitting pull requests:
+| 1️⃣ نافذة رفع وتحديد وسائط المنشور | 2️⃣ المعاينة المباشرة للصورة المختارة |
+| :---: | :---: |
+| ![Create Post Modal](screenshots/post-create-modal.png) | ![Selected Image Preview](screenshots/post-create-preview.png) |
 
-```bash
-# 🧪 Run automated tests
-sail artisan test
-
-# 🎨 Format code according to Laravel standards
-sail bin pint
-
-# 🔍 Run static analysis
-sail bin phpstan analyse
-```
+| 3️⃣ تطبيق الفلاتر اللونية التفاعلية | 4️⃣ صياغة الوصف والوسوم وتأكيد النشر |
+| :---: | :---: |
+| ![Photo Filters](screenshots/post-create-filters.png) | ![Caption and Publish](screenshots/post-create-caption.png) |
 
 ---
 
-## 📁 Key Directory Structure
+### 💬 3. استعراض المنشور والتفاعل وقوائم التنقل
 
-```text
-.
-├── app/
-│   ├── Actions/          # Single-responsibility business logic classes
-│   ├── Http/             # Controllers, Middleware, and Form Requests
-│   ├── Models/           # Eloquent Models
-│   └── Services/         # Service layer abstractions
-├── database/
-│   ├── factories/        # Model factories for testing
-│   ├── migrations/       # Schema definitions
-│   └── seeders/          # Database seeders
-├── tests/                # Feature and Unit tests
-└── docker-compose.yml    # Docker Sail container orchestration
-```
+| 📖 عرض تفاصيل المنشور والتعليقات والإعجابات | 👤 القائمة المنسدلة لإدارة الحساب والتنقل |
+| :---: | :---: |
+| ![Post View and Comments](screenshots/post-details.png) | ![User Dropdown Navigation](screenshots/user-menu-dropdown.png) |
 
 ---
 
-## 📄 License
+### 👤 4. إدارة الملف الشخصي وتخصيص الحساب (User Profile)
 
-This project is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
+| 📷 الملف الشخصي بالصورة الافتراضية | ✅ تحديث الصورة الرمزية مع إشعارات النجاح |
+| :---: | :---: |
+| ![Default User Profile](screenshots/profile-default.png) | ![Updated Profile with Alert](screenshots/profile-avatar-updated.png) |
+
+| ☀️ الملف الشخصي في الوضع النهاري | 🌐 الملف الشخصي باللغة الإنجليزية |
+| :---: | :---: |
+| ![Light Mode Profile](screenshots/profile-light.png) | ![English LTR Profile](screenshots/profile-dark-en.png) |
+
+---
+
+### 👥 5. الشبكة الاجتماعية ونظام المتابعة (Social Network & Follow)
+
+| 📋 استعراض قائمة الحسابات المتابَعَة | 🚫 الحالة التوجيهية عند عدم متابعة أي حساب |
+| :---: | :---: |
+| ![Following Users Modal](screenshots/following-list.png) | ![Empty Following State](screenshots/following-empty.png) |
+
+| ➕ استعراض بروفايل مستخدم آخر وزر المتابعة | 🖼️ تصفح شبكة منشورات الحسابات المتابعة |
+| :---: | :---: |
+| ![User Profile Follow Button](screenshots/other-profile-follow.png) | ![Following User Profile with Posts](screenshots/following-user-posts.png) |
+
+---
+
+### 🔍 6. الاستكشاف ومحرك البحث اللحظي (Explore & Live Search)
+
+| 🌍 شبكة الوسائط العامة لصفحة الاستكشاف | 🔎 الإكمال التلقائي والبحث الفوري عن المستخدمين |
+| :---: | :---: |
+| ![Explore Grid Full](screenshots/explore-grid.png) | ![Live Search Single Result](screenshots/live-search-single.png) |
+
+| 📱 شبكة الاستكشاف المنظمة والمحسنة | 👥 نتائج البحث اللحظي المتعددة في شريط البحث |
+| :---: | :---: |
+| ![Explore Grid Clean View](screenshots/explore-grid-clean.png) | ![Live Search Multiple Results](screenshots/live-search-multi.png) |
+
+---
+
+### 🔐 7. بوابة المصادقة وتسجيل الدخول (Authentication)
+
+<div align="center">
+
+![Login Screen Dark Mode](screenshots/login-dark.png)
+
+*🔐 واجهة تسجيل الدخول بالوضع الليلي مع خيارات التبديل السريع بين اللغات (العربية / الإنجليزية) وأنماط العرض.*
+
+
+---
+
+## 🏗 المعمارية الهندسية والتقنيات المستخدمة (Technical Architecture)
+
+يعتمد تطبيق **أنيس غرام** على معمارية معيارية حديثة تفصل بين المسؤوليات (Separation of Concerns)، وتحقق كفاءة عالية في إدارة الموارد وتحديث البيانات اللحظي:
+
+### 1. طبقة الخادم ومعالجة البيانات الأساسية (Backend Core)
+* **Laravel Framework (الإصدار 13.x):** يمثل النواة الخلفية للمشروع، حيث يوفر بنية تحتية قوية لإدارة دورة حياة الطلبات، التوجيه الذكي (Routing)، نمط الـ MVC المعاصر، وإدارة النماذج عبر Eloquent ORM بعلاقات متعددة ومعقدة.
+* **PHP 8.3+:** الاستفادة من أحدث إمكانيات اللغة مثل الأنواع الصارمة (Strict Typing)، الخصائص التلقائية للبناة (Constructor Property Promotion)، والدوال المتقدمة لضمان أقصى سرعة تنفيذ واستقرار برمجي.
+* **Livewire (الإصدار 4.x):** الركيزة الأساسية للتفاعل في التطبيق؛ حيث تتيح بناء واجهات تفاعلية ديناميكية بالكامل على جانب الخادم دون الحاجة إلى إعادة تحميل الصفحة، مما يجمع بين بساطة وأمان الـ Backend وقوة وسرعة أطر عمل الـ Single Page Applications (SPA).
+* **Intervention Image:** محرك معالجة وسائط متقدم على جانب الخادم للتعامل مع رفع الصور، تغيير أبعادها، ضغطها لتقليل استهلاك النطاق الترددي، وتطبيق التأثيرات اللونية والفلاتر بكفاءة.
+
+### 2. طبقة الاتصال اللحظي والشبكات (Real-Time Communication)
+* **Laravel Reverb:** خادم مقابس الويب (WebSockets) الأصلي فائق السرعة، مبني خصيصاً للتعامل مع آلاف الاتصالات المتزامنة بزمن انتقال شبه معدوم، مما يتيح التحديث الفوري للإشعارات والتفاعلات.
+* **Laravel Echo & Pusher Protocol:** طبقة تجريد متطورة تربط بين خادم الـ WebSockets وواجهة المتصفح، مما يضمن استماع المكونات للأحداث وبث التحديثات بسلاسة وأمان.
+
+### 3. طبقة الواجهة الأمامية وتجربة المستخدم (Frontend & UI/UX)
+* **Tailwind CSS:** إطار عمل نفعي لبناء الواجهات الرسومية، يتميز بتوليد حزم CSS بالغة الصغر، ويوفر تصميماً متجاوباً بالكامل لجميع مقاسات الشاشات، مع إدارة احترافية للألوان والتباين.
+* **نظام المظهر المزدوج (Dark & Light Theme):** تبديل سلس ولحظي بين الوضع الليلي والوضع الفاتح مع حفظ تفضيلات المستخدم تلقائياً.
+* **التوافق اللغوي ثنائي الاتجاه (Bi-directional Localization):** دعم كامل للغة العربية باتجاه اليمين إلى اليسار (RTL) واللغة الإنجليزية باتجاه اليسار إلى اليمين (LTR).
+* **Alpine.js:** إطار عمل جافاسكربت مصغر لمعالجة الحالات المحلية السريعة (Local State Management) مثل القوائم المنسدلة، النوافذ المشروطة (Modals)، والتحكم السلس في واجهة المستخدم دون الحاجة إلى طلبات خادم إضافية.
+* **Vite Bundler:** أداة تجميع وبناء الأصول الحديثة التي تعتمد على وحدات ES الأصلية (Native ES Modules)، موفرة تجميعاً فورياً وسرعة تصفح فائقة.
+
+### 4. طبقة قواعد البيانات والتخزين المؤقت (Data Persistence & Caching)
+* **MySQL 8.4:** قاعدة البيانات العلائقية المركزية، تم تصميم مخطط جداولها بعلاقات ربط دقيقة وفهارس ذكية لضمان أعلى أداء في استرجاع المنشورات، التعليقات، وتفاصيل المتابعين.
+* **Redis (Alpine):** وسيط فائق السرعة لتخزين الذاكرة المؤقتة (In-Memory Cache)، وإدارة طوابير المهام الخلفية (Queue Driver)، وإدارة جلسات المستخدمين، مما يضمن تقليل الحمل على قاعدة البيانات الرئيسية وزيادة سرعة الاستجابة.
+
+### 5. بيئة التشغيل والحوسبة بالحاويات (DevOps & Orchestration)
+* **Docker & Laravel Sail:** تشغيل وإدارة كافة خدمات التطبيق داخل حاويات معزولة وموحدة تشمل خادم التطبيق، خادم قواعد البيانات، مخزن الذاكرة المؤقتة، وخادم مقابس الويب، مما يضمن تطابق بيئات التطوير والإنتاج وإمكانية النشر السحابي الفوري.
+
+### 6. أدوات المراقبة وضمان الجودة (Quality Assurance & Monitoring)
+* **Laravel Telescope:** أداة متطورة للرصد والمراقبة البرمجية العميقة، تتيح فحص الاستعلامات الموجهة لقاعدة البيانات، واكتشاف الاستعلامات المكررة (N+1 Problem)، وتتبع الاستثناءات والمهام المجدولة.
+* **Pest PHP:** إطار عمل حديث لإجراء اختبارات الوحدة واختبارات الميزات التكاملية، لضمان استقرار الوظائف الحيوية للمنصة وموثوقية السلوك المتوقع.
+* **Laravel Pint & Larastan:** أدوات تدقيق جودة الكود والتحليل الثابت لضمان الالتزام بأعلى معايير جودة الشيفرة البرمجية وخلوها من الأخطاء المنطقية.
+
+---
+
+## 🌟 الميزات الوظيفية للمنصة (Core Platform Features)
+
+* **🔐 نظام المصادقة وإدارة الحسابات:** مصادقة آمنة للمستخدمين، وتأمين الجلسات، واستعادة كلمات المرور، وتعديل بيانات الملف الشخصي والصور الرمزية.
+* **📸 استوديو إنشاء ونشر المنشورات:** إمكانية رفع الصور بمختلف الصيغ، ومعاينتها الفورية، وتطبيق فلاتر وتأثيرات لونية متنوعة، وإضافة الشروحات النصية.
+* **❤️ التفاعل الاجتماعي المباشر:** التفاعل بالإعجاب مع المنشورات، وإضافة التعليقات، وتحديث العدادات بصورة فورية.
+* **👥 شبكة المتابعة والملفات الشخصية:** متابعة وإلغاء متابعة المستخدمين، استعراض قوائم المتابعين والمتابَعين، ودعم ميزة الحسابات الخاصة والموافقة على طلبات المتابعة.
+* **🔍 محرك بحث تفاعلي فوري:** شريط بحث ذكي ينفذ استعلامات حية لحظة كتابة الحروف لإظهار المستخدمين المتطابقين دون مغادرة الصفحة.
+* **🌍 صفحة الاستكشاف الذكية:** تجميع الوسائط والصور المقترحة في شبكة تفاعلية منظمة تتيح اكتشاف صانعي المحتوى والمحتوى الرائج.
+
+---
+
+## 🛡 معايير الأمان والحماية (Security Standards)
+
+* **حماية النماذج والجلسات:** تطبيق حماية صارمة ضد هجمات تزوير الطلبات عبر المواقع (CSRF Protection) وهجمات حيازة الجلسات.
+* **تنقية البيانات وحماية الواجهة:** تعقيم وتطهير كافة المدخلات والمخرجات النصية لمنع هجمات حقن النصوص البرمجية (XSS).
+* **أمان الاستعلامات:** استخدام تقنية الاستعلامات المجهزة مسبقاً (Prepared Statements) عبر Eloquent لمنع هجمات حقن قواعد البيانات (SQL Injection).
+* **إدارة الصلاحيات (Authorization Policies):** عزل تام لحقوق التعديل والحذف بحيث لا يمتلك أي مستخدم حق التعديل أو الحذف لغير منشوراته وبياناته الشخصية.
+* **أمان معالجة الوسائط:** التحقق الصارم من أنواع ملفات الصور المرفوعة وأحجامها قبل حفظها وتخزينها بصورة آمنة.
+
+---
+
+## 📄 الترخيص (License)
+
+هذا المشروع مرخص تحت رخصة **[MIT License](https://opensource.org/licenses/MIT)** المفتوحة المصدر.
